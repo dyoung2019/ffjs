@@ -41,4 +41,16 @@ Makefile
 build-aux/
 autom4te.cache/
 .deps
-probex
+
+# CMakefile
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+#Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps

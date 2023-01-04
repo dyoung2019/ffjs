@@ -2,3 +2,6 @@
 	path = build/ffmpeg
 	url = https://git.ffmpeg.org/ffmpeg.git
 	branch = release/5.1
+[submodule "build/emscripten"]
+	path = emscripten
+	url = https://github.com/emscripten-core/emscripten.git
