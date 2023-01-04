@@ -1,0 +1,60 @@
+
+CC=gcc
+CXX=g++
+CFLAGS=-O3
+CXXFLAGS=-O3
+LD=g++
+LDFLAGS=-v
+OPT_PATH=/usr/local/opt/
+INCLUDE_FLAGS=-I$(OPT_PATH)ffmpeg/include/
+FFMPEG_PREFIX=$(OPT_PATH)ffmpeg
+FFMPEG_LIB_PATH=$(FFMPEG_PREFIX)/lib/
+
+PROBE_LIBS= \
+	$(FFMPEG_LIB_PATH)libavformat.dylib \
+	$(FFMPEG_LIB_PATH)libavcodec.dylib \
+	$(FFMPEG_LIB_PATH)libavutil.dylib
+
+BUILD_OBJECTS= \
+	build/free_decoder_context.o \
+	build/init_decoder_context.o \
+	build/loop_thru_streams.o \
+	build/main.o \
+	build/open_video_file.o \
+	build/print_a_stream.o \
+	build/print_audio_parameters.o \
+	build/print_disposition_info.o \
+	build/print_stream_parameters.o \
+	build/print_sub_parameters.o \
+	build/print_tags_dictionary.o \
+	build/print_utils.o \
+	build/print_video_format.o \
+	build/print_video_parameters.o \
+	build/probe_video_file.o \
+	build/ResponseWriter.o \
+	build/StringCache.o \
+	build/utils.o
+
+all: probe-x
+
+clean:
+	rm -r build
+
+probe-x: build $(BUILD_OBJECTS)
+	$(LD) \
+	$(LDFLAGS) \
+	-o $@ \
+	-I$(FFMPEG_PREFIX)/include \
+	-L$(FFMPEG_PREFIX)/lib \
+	$(PROBE_LIBS) \
+	$(BUILD_OBJECTS)
+
+build/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -O -c $< $(INCLUDE_FLAGS) -o $@
+
+build/%.o: src/%.c
+	$(CC) $(CFLAGS) -O -c $< $(INCLUDE_FLAGS) -o $@
+
+build:
+	mkdir -p build
+	
