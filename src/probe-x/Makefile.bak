@@ -1,60 +1,91 @@
-
+# custom makefile
+ECC=emcc
 CC=gcc
 CXX=g++
-CFLAGS=-O3
-CXXFLAGS=-O3
-LD=g++
-LDFLAGS=-v
-OPT_PATH=/usr/local/opt/
-INCLUDE_FLAGS=-I$(OPT_PATH)ffmpeg/include/
+EXX=em++
+EMAR=emar
+#FILE_SIZE_LIMIT=4294967295
+EFLAGS=--bind -O3
+ECCFLAGS=$(EFLAGS) 
+EXXFLAGS=$(EFLAGS)
+
+OPT_PATH=../../build/
+INCLUDE_FLAGS=-I$(OPT_PATH)ffmpeg/
 FFMPEG_PREFIX=$(OPT_PATH)ffmpeg
 FFMPEG_LIB_PATH=$(FFMPEG_PREFIX)/lib/
 
-PROBE_LIBS= \
+LDFLAGS= \
 	$(FFMPEG_LIB_PATH)libavformat.dylib \
 	$(FFMPEG_LIB_PATH)libavcodec.dylib \
 	$(FFMPEG_LIB_PATH)libavutil.dylib
 
-BUILD_OBJECTS= \
-	build/free_decoder_context.o \
-	build/init_decoder_context.o \
-	build/loop_thru_streams.o \
-	build/main.o \
-	build/open_video_file.o \
-	build/print_a_stream.o \
-	build/print_audio_parameters.o \
-	build/print_disposition_info.o \
-	build/print_stream_parameters.o \
-	build/print_sub_parameters.o \
-	build/print_tags_dictionary.o \
-	build/print_utils.o \
-	build/print_video_format.o \
-	build/print_video_parameters.o \
-	build/probe_video_file.o \
-	build/ResponseWriter.o \
-	build/StringCache.o \
-	build/utils.o
 
-all: probe-x
+ELDFLAGS= $(EFLAGS) \
+	-L$(FFMPEG_LIB_PATH) \
+	--ar=$(EMAR) \
+	-lworkerfs.js \
+	-Werror \
+	-Wno-deprecated-declarations \
+	-Wno-pointer-sign \
+	-Wno-implicit-int-float-conversion \
+	-Wno-switch \
+	-Wno-parentheses \
+	-Qunused-arguments \
+	-s EXPORTED_RUNTIME_METHODS=FS \
+	-s ALLOW_MEMORY_GROWTH \
+	-s MAXIMUM_MEMORY=4GB
+
+BUILD_OBJECTS= \
+	build-ecc/free_decoder_context.o \
+	build-ecc/init_decoder_context.o \
+	build-exx/loop_thru_streams.o \
+	build-exx/open_video_file.o \
+	build-ecc/print_a_stream.o \
+	build-ecc/print_audio_parameters.o \
+	build-ecc/print_disposition_info.o \
+	build-ecc/print_stream_parameters.o \
+	build-ecc/print_sub_parameters.o \
+	build-ecc/print_tags_dictionary.o \
+	build-ecc/print_utils.o \
+	build-ecc/print_video_format.o \
+	build-ecc/print_video_parameters.o \
+	build-exx/probe_video_file.o \
+	build-exx/ResponseWriter.o \
+	build-ecc/StringCache.o \
+	build-ecc/utils.o
+
+MAIN_OBJ= \
+	build-exx/probe_x.o
+
+all: build-ecc build-exx probe-x-es6.mjs probe-x.js
 
 clean:
-	rm -r build
+	rm -r build-ecc
+	rm -r build-exx
+	rm -r dist
 
-probe-x: build $(BUILD_OBJECTS)
-	$(LD) \
-	$(LDFLAGS) \
-	-o $@ \
-	-I$(FFMPEG_PREFIX)/include \
-	-L$(FFMPEG_PREFIX)/lib \
-	$(PROBE_LIBS) \
-	$(BUILD_OBJECTS)
+build-ecc:
+	mkdir -p build-ecc
 
-build/%.o: src/%.cpp
-	$(CXX) $(CXXFLAGS) -O -c $< $(INCLUDE_FLAGS) -o $@
+build-exx:
+	mkdir -p build-exx
 
-build/%.o: src/%.c
-	$(CC) $(CFLAGS) -O -c $< $(INCLUDE_FLAGS) -o $@
+dist:
+	mkdir -p dist
 
 build:
 	mkdir -p build
-	
+
+probe-x-es6.mjs: dist $(BUILD_OBJECTS) $(MAIN_OBJ)
+	$(EXX) $(ELDFLAGS) -o dist/probe-x-es6.mjs $(BUILD_OBJECTS) $(MAIN_OBJ)
+
+probe-x.js: dist $(BUILD_OBJECTS) $(MAIN_OBJ)
+	$(EXX) $(ELDFLAGS) -o dist/probe-x.js $(BUILD_OBJECTS) $(MAIN_OBJ)
+
+build-exx/%.o: src/%.cpp
+	$(EXX) $(EXXFLAGS) -c $< $(INCLUDE_FLAGS) -o $@
+
+build-ecc/%.o: src/%.c
+	$(ECC) $(ECCFLAGS) -O -c $< $(INCLUDE_FLAGS) -o $@
+
+
