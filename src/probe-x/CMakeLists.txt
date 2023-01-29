@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
-project(probe-x VERSION 1.0.0)
+cmake_minimum_required(VERSION 3.22)
 
 message(VAR(probe-x) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
 
