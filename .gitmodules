@@ -5,3 +5,6 @@
 [submodule "build/emscripten"]
 	path = emscripten
 	url = https://github.com/emscripten-core/emscripten.git
+[submodule "build/zlib"]
+	path = build/zlib
+	url = https://github.com/madler/zlib.git
