@@ -2,7 +2,7 @@
 
 ## TL;DNR
 ```bash
-> cmake 
+> cmake -DCMAKE_TOOLCHAIN_FILE=./emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -DEMSCRIPTEN_ROOT_PATH=/usr/local/opt/emscripten/bin/ -G "Unix Makefiles" .
 > make all
 ```
 

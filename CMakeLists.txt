@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
-project(ff VERSION 1.0.0) 
+project(ff VERSION 1.0.0)
+set(VERSION 3.22)
 
 SET(MAXIMUM_MEMORY "4GB")
 
@@ -19,6 +20,8 @@ if(USE_PROBE_X)
   list(APPEND EXTRA_LIBS probe-x)
 endif()
 
-add_executable(ff)
+add_executable(ff
+  ./src/ff_main.c
+)
 
 target_link_libraries(ff ${EXTRA_LIBS})
