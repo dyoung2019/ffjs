@@ -2,9 +2,26 @@
 
 ## TL;DNR
 ```bash
-> cmake -DCMAKE_TOOLCHAIN_FILE=./emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -DEMSCRIPTEN_ROOT_PATH=/usr/local/opt/emscripten/bin/ -G "Unix Makefiles" .
+> cmake -DCMAKE_TOOLCHAIN_FILE=./build/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -DEMSCRIPTEN_ROOT_PATH=/usr/local/opt/emscripten/bin/ -G "Unix Makefiles" .
 > make all
 ```
+
+### MACOS
+
+````sh
+emcmake cmake -G "Unix Makefiles" .
+````
+
+#### local compiliation
+
+- -Wno-dev (disable policy warnings)
+- -DLLVM_ROOT (set llvm root to emscripten custom build)
+
+````sh
+> brew install make binaryen emscripten llvm
+> cmake -Wno-dev -DLLVM_ROOT=/usr/local/opt/emscripten/libexec/llvm/bin -DCMAKE_TOOLCHAIN_FILE=./build/emscripten/cmake/Modules/Platform/Emscripten.cmake  -DEMSCRIPTEN_ROOT_PATH=/usr/local/opt/emscripten/bin/ -G "Unix Makefiles" .
+> make all
+````
 
 ## Purpose
 

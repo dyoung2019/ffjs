@@ -2,9 +2,10 @@
 	path = build/ffmpeg
 	url = https://git.ffmpeg.org/ffmpeg.git
 	branch = release/5.1
-[submodule "build/emscripten"]
-	path = emscripten
-	url = https://github.com/emscripten-core/emscripten.git
 [submodule "build/zlib"]
 	path = build/zlib
 	url = https://github.com/madler/zlib.git
+	ignore = dirty
+[submodule "build/emscripten"]
+	path = build/emscripten
+	url = https://github.com/emscripten-core/emscripten.git

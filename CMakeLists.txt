@@ -6,7 +6,7 @@ SET(MAXIMUM_MEMORY "4GB")
 
 option(USE_PROBE_X "Using probe-x" ON)
 
-option(USE_FFMPEG "Using ffmpeg" OFF)
+option(USE_FFMPEG "Using ffmpeg" ON)
 
 if(USE_FFMPEG)
   set(FFMPEG_BUILD_DIR "./build")
