@@ -9,3 +9,30 @@
 [submodule "build/emscripten"]
 	path = build/emscripten
 	url = https://github.com/emscripten-core/emscripten.git
+[submodule "build/x264"]
+	path = build/x264
+	url = https://code.videolan.org/videolan/x264.git
+[submodule "build/x265"]
+	path = build/x265
+	url = https://bitbucket.org/multicoreware/x265_git.git
+[submodule "build/libvpx"]
+	path = build/libvpx
+	url = https://chromium.googlesource.com/webm/libvpx
+[submodule "build/WavPack"]
+	path = build/WavPack
+	url = https://github.com/dbry/WavPack.git
+[submodule "build/lame"]
+	path = build/lame
+	url = https://github.com/ffmpegwasm/lame
+[submodule "build/fdk-aac"]
+	path = build/fdk-aac
+	url = https://github.com/mstorsjo/fdk-aac.git
+[submodule "build/ogg"]
+	path = build/ogg
+	url = https://gitlab.xiph.org/xiph/ogg.git
+[submodule "build/vorbis"]
+	path = build/vorbis
+	url = https://gitlab.xiph.org/xiph/vorbis.git
+[submodule "build/theora"]
+	path = build/theora
+	url = https://gitlab.xiph.org/xiph/theora.git
