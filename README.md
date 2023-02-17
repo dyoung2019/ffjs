@@ -1,4 +1,6 @@
-# ffmpeg 
+# ffmpeg js 
+
+emscripten compiled wasm of latest ffmpeg code (multi-threaded) and worker thread compatible
 
 ## TL;DNR
 ```bash
@@ -34,7 +36,7 @@ ffmpeg conversion to HLS
 
 ## BACKGROUND
 
-Based on 
+Largely based on 
 - ffmpeg.wasm-core
 - ffmpeg.js
 

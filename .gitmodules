@@ -12,6 +12,7 @@
 [submodule "build/x264"]
 	path = build/x264
 	url = https://code.videolan.org/videolan/x264.git
+	ignore = dirty	
 [submodule "build/x265"]
 	path = build/x265
 	url = https://bitbucket.org/multicoreware/x265_git.git

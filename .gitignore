@@ -56,3 +56,4 @@ CTestTestfile.cmake
 _deps
 CopyOfCMakeCache.txt
 .emscripten.config
+config.log
