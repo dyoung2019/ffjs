@@ -2,28 +2,10 @@ cmake_minimum_required(VERSION 3.22)
 
 message(VAR(x264) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
 
-# install-lib-static
-# $(LIBX264): $(OBJS) $(OBJASM)
-	# rm -f $(LIBX264)
-	# $(AR)$@ $(OBJS) $(OBJASM)
-	# $(if $(RANLIB), $(RANLIB) $@)
-
-# target_compile_options(x264 PRIVATE --disable-cli)
-#   if [ "$cli" = "no" ] ; then
-#   avs="no" 
-#   lavf="no"
-#   ffms="no"
-#   gpac="no"
-#   lsmash="no"
-#   mp4="no"
-#   swscale="no"
-# fi
-
 set(X_DIR "./x264/")
+set(X_LINK_FLAGS "-Wshadow;-O3;-ffast-math;-m32;-Wall;-std=gnu99;-D_GNU_SOURCE;-fomit-frame-pointer;-fno-tree-vectorize;-fvisibility=hidden")
 
-# target_compile_options(x264 PRIVATE --enable-static)
 add_library(x264 STATIC
-  # SRCS
   ${X_DIR}common/osdep.c
   ${X_DIR}common/base.c
   ${X_DIR}common/cpu.c
@@ -70,38 +52,9 @@ target_link_libraries(x264 x264_0_8 x264_1_10)
 #   ""
 # )
 
-# i686-openbsd
-# platform:       X86
-# byte order:     little-endian
-# system:         OPENBSD
-# cli:            no
-# libx264:        internal
-# shared:         no
-# static:         yes
-# bashcompletion: no
-# asm:            no
-# interlaced:     yes
-# avs:            no
-# lavf:           no
-# ffms:           no
-# mp4:            no
-# gpl:            yes
-# thread:         posix
-# opencl:         no
-# filters:        crop select_every
-# lto:            no
-# debug:          no
-# gprof:          no
-# strip:          no
-# PIC:            no
-# bit depth:      all
-# chroma format:  all
-
-
-set_target_properties(x264 PROPERTIES LINK_FLAGS 
-  "-Wshadow;-O3;-ffast-math;-m32;-Wall;-std=gnu99;-D_GNU_SOURCE;-fomit-frame-pointer;-fno-tree-vectorize;-fvisibility=hidden"
-)
-
+set_target_properties(x264 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
+set_target_properties(x264_0_8 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
+set_target_properties(x264_1_10 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
 
 target_include_directories(x264 PUBLIC ${X_DIR})
 target_include_directories(x264_0_8 PUBLIC ${X_DIR})
@@ -110,52 +63,4 @@ target_include_directories(x264 INTERFACE ${X_DIR})
 target_include_directories(x264_0_8 INTERFACE ${X_DIR})
 target_include_directories(x264_1_10 INTERFACE ${X_DIR})
 
-
-# target_compile_options(x264 PRIVATE --disable-asm)
-
 list(APPEND EXTRA_LIBS x264)
-
-# i686-openbsd
-
-#define ARCH_X86 1
-#define SYS_OPENBSD 1
-#define STACK_ALIGNMENT 4
-#define HAVE_POSIXTHREAD 1
-#define HAVE_THREAD 1
-#define HAVE_LOG2F 1
-#define HAVE_STRTOK_R 1
-#define HAVE_CLOCK_GETTIME 1
-#define HAVE_MMAP 1
-#define HAVE_VECTOREXT 1
-#define fseek fseeko
-#define ftell ftello
-#define HAVE_BITDEPTH8 1
-#define HAVE_BITDEPTH10 1
-#define HAVE_GPL 1
-#define HAVE_INTERLACED 1
-#define HAVE_MALLOC_H 0
-#define HAVE_ALTIVEC 0
-#define HAVE_ALTIVEC_H 0
-#define HAVE_MMX 0
-#define HAVE_ARMV6 0
-#define HAVE_ARMV6T2 0
-#define HAVE_NEON 0
-#define HAVE_AARCH64 0
-#define HAVE_BEOSTHREAD 0
-#define HAVE_WIN32THREAD 0
-#define HAVE_SWSCALE 0
-#define HAVE_LAVF 0
-#define HAVE_FFMS 0
-#define HAVE_GPAC 0
-#define HAVE_AVS 0
-#define HAVE_CPU_COUNT 0
-#define HAVE_OPENCL 0
-#define HAVE_THP 0
-#define HAVE_LSMASH 0
-#define HAVE_X86_INLINE_ASM 0
-#define HAVE_AS_FUNC 0
-#define HAVE_INTEL_DISPATCHER 0
-#define HAVE_MSA 0
-#define HAVE_WINRT 0
-#define HAVE_VSX 0
-#define HAVE_ARM_INLINE_ASM 0
