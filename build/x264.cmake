@@ -48,13 +48,7 @@ target_compile_definitions(x264_1_10 PRIVATE HIGH_BIT_DEPTH=1)
 target_compile_definitions(x264_1_10 PRIVATE BIT_DEPTH=10)
 target_link_libraries(x264 x264_0_8 x264_1_10)
 
-# target_compile_options(x264 INTERFACE
-#   ""
-# )
-
-set_target_properties(x264 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
-set_target_properties(x264_0_8 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
-set_target_properties(x264_1_10 PROPERTIES LINK_FLAGS ${X_LINK_FLAGS})
+target_compile_options(x264 INTERFACE ${X_LINK_FLAGS})
 
 target_include_directories(x264 PUBLIC ${X_DIR})
 target_include_directories(x264_0_8 PUBLIC ${X_DIR})
