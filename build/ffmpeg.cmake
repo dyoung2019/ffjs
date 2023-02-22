@@ -52,12 +52,25 @@ function(setup_ff_components)
   setup_library()
 endfunction()
 
-setup_ff_components(
-  libavdevice 
-  libavfilter 
-  libavformat 
-  libavcodec 
-  libpostproc 
-  libswresample 
-  libswscale
-)
+# setup_ff_components(
+#   libavdevice 
+#   libavfilter 
+#   libavformat 
+#   libavcodec 
+#   libpostproc 
+#   libswresample 
+#   libswscale
+# )
+
+# WRITE OUR OWN CONFIG.H to control x264
+include(./ffmpeg_config.h.in.cmake) 
+configure_file(./ffmpeg_config.h.in "build/ffmpeg/config.h" NO_SOURCE_PERMISSIONS @ONLY)
+
+include(./ffmpeg_config_components.h.in.cmake)
+configure_file(./ffmpeg_config_components.h.in "build/ffmpeg/config_components.h" NO_SOURCE_PERMISSIONS @ONLY)
+
+SET(FFMPEG_CONFIG_HEADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/build/ffmpeg")
+
+include(./ffmpeg.libavutil.cmake)
+# include(./ffmpeg.libavdevice.cmake)
+# include(./ffmpeg.libavfilter.cmake)

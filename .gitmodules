@@ -1,14 +1,11 @@
 [submodule "build/ffmpeg"]
 	path = build/ffmpeg
 	url = https://git.ffmpeg.org/ffmpeg.git
-	branch = release/5.1
+	ignore = dirty
 [submodule "build/zlib"]
 	path = build/zlib
 	url = https://github.com/madler/zlib.git
 	ignore = dirty
-[submodule "build/emscripten"]
-	path = build/emscripten
-	url = https://github.com/emscripten-core/emscripten.git
 [submodule "build/x264"]
 	path = build/x264
 	url = https://code.videolan.org/videolan/x264.git
@@ -16,12 +13,10 @@
 [submodule "build/x265"]
 	path = build/x265
 	url = https://bitbucket.org/multicoreware/x265_git.git
+	ignore = dirty	
 [submodule "build/libvpx"]
 	path = build/libvpx
 	url = https://chromium.googlesource.com/webm/libvpx
-[submodule "build/WavPack"]
-	path = build/WavPack
-	url = https://github.com/dbry/WavPack.git
 [submodule "build/lame"]
 	path = build/lame
 	url = https://github.com/ffmpegwasm/lame
@@ -37,3 +32,21 @@
 [submodule "build/theora"]
 	path = build/theora
 	url = https://gitlab.xiph.org/xiph/theora.git
+[submodule "build/freetype2"]
+	path = build/freetype2
+	url = https://gitlab.freedesktop.org/freetype/freetype.git
+[submodule "build/opus"]
+	path = build/opus
+	url = https://gitlab.xiph.org/xiph/opus.git
+[submodule "build/libwebp"]
+	path = build/libwebp
+	url = https://chromium.googlesource.com/webm/libwebp
+[submodule "build/libass"]
+	path = build/libass
+	url = https://github.com/libass/libass.git
+[submodule "build/fribidi"]
+	path = build/fribidi
+	url = https://github.com/fribidi/fribidi.git
+[submodule "build/harfbuzz"]
+	path = build/harfbuzz
+	url = https://github.com/harfbuzz/harfbuzz.git

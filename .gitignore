@@ -57,3 +57,5 @@ _deps
 CopyOfCMakeCache.txt
 .emscripten.config
 config.log
+build/build/*
+build/include/*
