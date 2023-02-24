@@ -1,0 +1,17 @@
+FFMPEG - TODOs 
+generate these files
+libavcodec
+  - bsf_list.c
+  - codec_list.c
+  - parser_list.c
+libavdevice
+  - index_list.cd
+  - outdev.c
+libavfilter
+  - filter_list.c
+libavformat
+  - demuxer_list.c
+  - muxer_list.c
+  - protocol_list.c
+libavutil
+  - avconfig.h

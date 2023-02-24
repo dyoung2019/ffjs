@@ -8,7 +8,6 @@ add_library(libavutil STATIC
 	adler32.c
 	aes.c
 	aes_ctr.c
-	ambient_viewing_environment.c
 	audio_fifo.c
 	avstring.c
 	avsscanf.c
@@ -18,13 +17,14 @@ add_library(libavutil STATIC
 	buffer.c
 	cast5.c
 	camellia.c
-	# channel_layout.c
+	channel_layout.c
+	color_utils.c
 	cpu.c
 	crc.c
 	csp.c
 	des.c
 	detection_bbox.c
-	# dict.c
+	dict.c
 	display.c
 	dovi_meta.c
 	downmix_info.c
@@ -88,7 +88,7 @@ add_library(libavutil STATIC
 	video_enc_params.c
 	film_grain_params.c
 
-	${COMPAT_DIR}getopt.c
+  ${COMPAT_DIR}getopt.c
 	${COMPAT_DIR}strtod.c
 )
 
@@ -96,8 +96,12 @@ set_property(TARGET libavutil PROPERTY C_STANDARD 11)
 
 message(VAR(libavutil-dir).FFMPEG_DIR : ${FFMPEG_INCLUDE_HEADER_DIR})
 
-target_compile_options(libavutil INTERFACE "-Wno-implicit-function-declaration;-Wno-implicit-const-int-float-conversion")
+target_compile_options(libavutil 
+  INTERFACE "-Wno-implicit-function-declaration;-Wno-implicit-const-int-float-conversion;"
+  PRIVATE "-Wno-pointer-sign"
+)
 
+target_compile_options(libavutil PRIVATE -DHAVE_AV_CONFIG_H=1)
 
 target_include_directories(libavutil 
 	PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
@@ -106,80 +110,83 @@ target_link_directories(libavutil
   PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
 )
 
-if ( FFMPEG_CONFIG_CUDA )
+# add_library(libavutil_aux0 OBJECT buffer.c)
+# target_compile_options(libavutil_aux0 PRIVATE -DHAVE_AV_CONFIG_H=1)
+# target_link_libraries(libavutil libavutil_aux0)
+
+set (device_srcs)
+
+if ( CONFIG_CUDA )
 	list(APPEND device_srcs
 		hwcontext_cuda.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_D3D11VA )
+if ( CONFIG_D3D11VA )
 	list(APPEND device_srcs
 		hwcontext_d3d11va.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DXVA2 )
+if ( CONFIG_DXVA2 )
 	list(APPEND device_srcs
 		hwcontext_dxva2.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIBDRM )
+if ( CONFIG_LIBDRM )
 	list(APPEND device_srcs
 		hwcontext_drm.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MACOS_KPERF )
+if ( CONFIG_MACOS_KPERF )
 	list(APPEND device_srcs
 		macos_kperf.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MEDIACODEC )
+if ( CONFIG_MEDIACODEC )
 	list(APPEND device_srcs
 		hwcontext_mediacodec.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OPENCL )
+if ( CONFIG_OPENCL )
 	list(APPEND device_srcs
 		hwcontext_opencl.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_QSV )
+if ( CONFIG_QSV )
 	list(APPEND device_srcs
 		hwcontext_qsv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VAAPI )
+if ( CONFIG_VAAPI )
 	list(APPEND device_srcs
 		hwcontext_vaapi.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIDEOTOOLBOX )
+if ( CONFIG_VIDEOTOOLBOX )
 	list(APPEND device_srcs
 		hwcontext_videotoolbox.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VDPAU )
+if ( CONFIG_VDPAU )
 	list(APPEND device_srcs
 		hwcontext_vdpau.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VULKAN )
+if ( CONFIG_VULKAN )
 	list(APPEND device_srcs
 		hwcontext_vulkan.c
 	)
-endif()
-
-
-if ( FFMPEG_!CONFIG_VULKAN )
+else ( CONFIG_VULKAN )
 	list(APPEND device_srcs
 		hwcontext_stub.c
 	)
@@ -188,14 +195,15 @@ endif()
 list(REMOVE_DUPLICATES device_srcs)
 
 IF( device_srcs )
-  add_library(libavutil_aux OBJECT ${device_srcs})
-  target_include_directories(libavutil_aux 
-	PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
-)
-target_link_directories(libavutil_aux 
-  PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
-)
-  target_link_libraries(libavutil libavutil_aux)
+  add_library(libavutil_aux1 OBJECT ${device_srcs})
+  
+  target_include_directories(libavutil_aux1 
+    PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
+  )
+  target_link_directories(libavutil_aux1 
+    PUBLIC ${FFMPEG_INCLUDE_HEADER_DIR}
+  )
+  target_link_libraries(libavutil libavutil_aux1)
 ENDIF()
 
 list(APPEND EXTRA_LIBS libavutil)

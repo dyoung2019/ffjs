@@ -614,7 +614,7 @@
 #cmakedefine CONFIG_FFT
 #cmakedefine CONFIG_LSP
 #cmakedefine CONFIG_MDCT
-#cmakedefine CONFIG_PIXELUTILS
+#cmakedefine01 CONFIG_PIXELUTILS
 #cmakedefine CONFIG_NETWORK
 #cmakedefine CONFIG_RDFT
 #cmakedefine CONFIG_AUTODETECT
@@ -622,7 +622,7 @@
 #cmakedefine CONFIG_LARGE_TESTS
 #cmakedefine CONFIG_LINUX_PERF
 #cmakedefine CONFIG_MACOS_KPERF
-#cmakedefine CONFIG_MEMORY_POISONING
+#cmakedefine01 CONFIG_MEMORY_POISONING
 #cmakedefine CONFIG_NEON_CLOBBER_TEST
 #cmakedefine CONFIG_OSSFUZZ
 #cmakedefine CONFIG_PIC
