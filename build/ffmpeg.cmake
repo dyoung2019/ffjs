@@ -63,14 +63,18 @@ endfunction()
 # )
 
 # WRITE OUR OWN CONFIG.H to control x264
+SET(FFMPEG_INCLUDE_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
+
 include(./ffmpeg_config.h.in.cmake) 
-configure_file(./ffmpeg_config.h.in "build/ffmpeg/config.h" NO_SOURCE_PERMISSIONS @ONLY)
+configure_file(./ffmpeg_config.h.in ${FFMPEG_INCLUDE_HEADER_DIR}/config.h NO_SOURCE_PERMISSIONS @ONLY)
 
 include(./ffmpeg_config_components.h.in.cmake)
-configure_file(./ffmpeg_config_components.h.in "build/ffmpeg/config_components.h" NO_SOURCE_PERMISSIONS @ONLY)
+configure_file(./ffmpeg_config_components.h.in ${FFMPEG_INCLUDE_HEADER_DIR}/config_components.h NO_SOURCE_PERMISSIONS @ONLY)
 
-SET(FFMPEG_CONFIG_HEADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/build/ffmpeg")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavutil/CMakeLists.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
+# file(RENAME ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil/Makefile ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavutil/Makefile.bak)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
 
-include(./ffmpeg.libavutil.cmake)
+# include(./ffmpeg.libavutil.cmake)
 # include(./ffmpeg.libavdevice.cmake)
 # include(./ffmpeg.libavfilter.cmake)

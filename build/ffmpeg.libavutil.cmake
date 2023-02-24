@@ -25,11 +25,11 @@ add_library(libavutil STATIC
 	${AV_DIR}avsscanf.c
 	${AV_DIR}base64.c
 	${AV_DIR}blowfish.c
-	${AV_DIR}bprint.c
+	# ${AV_DIR}bprint.c
 	${AV_DIR}buffer.c
 	${AV_DIR}cast5.c
 	${AV_DIR}camellia.c
-	${AV_DIR}channel_layout.c
+	# ${AV_DIR}channel_layout.c
 	${AV_DIR}cpu.c
 	${AV_DIR}crc.c
 	${AV_DIR}csp.c
@@ -102,6 +102,32 @@ add_library(libavutil STATIC
 	${COMPAT_DIR}getopt.c
 	${COMPAT_DIR}strtod.c
 )
+
+
+# ${AV_DIR}bprint.c
+add_library(libavutil_bprint OBJECT ${AV_DIR}bprint.c)
+target_include_directories(libavutil_bprint 
+	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR} 
+	PRIVATE ${FFMPEG_DIR}
+)
+target_compile_options(libavutil_bprint INTERFACE "-Wno-implicit-function-declaration")
+target_link_libraries(libavutil libavutil_bprint)
+
+add_library(libavutil_channel_layout OBJECT ${AV_DIR}channel_layout.c)
+target_include_directories(libavutil_channel_layout 
+	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR} 
+	PRIVATE ${FFMPEG_DIR}
+	PRIVATE ${AV_DIR}
+)
+target_link_libraries(libavutil libavutil_channel_layout)
+
+add_library(libavutil_channel_layout OBJECT ${AV_DIR}channel_layout.c)
+target_include_directories(libavutil_channel_layout 
+	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR} 
+	PRIVATE ${FFMPEG_DIR}
+	PRIVATE ${AV_DIR}
+)
+target_link_libraries(libavutil libavutil_channel_layout)
 
 if ( FFMPEG_CONFIG_CUDA )
 	list(APPEND device_srcs
@@ -186,12 +212,14 @@ endif()
 list(REMOVE_DUPLICATES device_srcs)
 
 target_include_directories(libavutil 
-	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR}
 	PRIVATE ${AV_DIR}
+	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR}
+	PRIVATE ${FFMPEG_DIR}
 )
 target_link_directories(libavutil 
-	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR}
 	PRIVATE ${AV_DIR}
+	PRIVATE ${FFMPEG_CONFIG_HEADER_DIR}
+	PRIVATE ${FFMPEG_DIR}
 )
 
 IF( device_srcs )

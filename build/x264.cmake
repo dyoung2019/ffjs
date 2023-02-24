@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.22)
 
 message(VAR(x264) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
 
+SET(X264_CONFIG_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/x264)
+
 # WRITE OUR OWN CONFIG.H to control x264
 include(./x264_config.h.in.cmake)
-configure_file(./x264_config.h.in "build/x264/config.h" NO_SOURCE_PERMISSIONS @ONLY)
+configure_file(./x264_config.h.in ${X264_CONFIG_HEADER_DIR}/config.h NO_SOURCE_PERMISSIONS @ONLY)
 
 set(X_DIR "./x264/")
 set(X_LINK_FLAGS "-Wshadow;-O3;-ffast-math;-m32;-Wall;-std=gnu99;-D_GNU_SOURCE;-fomit-frame-pointer;-fno-tree-vectorize;-fvisibility=hidden")
@@ -55,7 +57,6 @@ target_link_libraries(x264 x264_0_8 x264_1_10)
 target_compile_options(x264 INTERFACE ${X_LINK_FLAGS})
 
 # for reference generated config.h
-SET(X264_CONFIG_HEADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/build/x264")
 target_include_directories(x264 PRIVATE ${X264_CONFIG_HEADER_DIR})
 target_include_directories(x264_0_8 PRIVATE ${X264_CONFIG_HEADER_DIR})
 target_include_directories(x264_1_10 PRIVATE ${X264_CONFIG_HEADER_DIR})
