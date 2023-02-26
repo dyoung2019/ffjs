@@ -72,8 +72,10 @@ include(./ffmpeg_config_components.h.in.cmake)
 configure_file(./ffmpeg_config_components.h.in ${FFMPEG_INCLUDE_HEADER_DIR}/config_components.h NO_SOURCE_PERMISSIONS @ONLY)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavutil/CMakeLists.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
-# file(RENAME ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil/Makefile ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavutil/Makefile.bak)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavdevice/CMakeLists.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavdevice)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavdevice)
 
 # include(./ffmpeg.libavutil.cmake)
 # include(./ffmpeg.libavdevice.cmake)

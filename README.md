@@ -14,6 +14,13 @@ emscripten compiled wasm of latest ffmpeg code (multi-threaded) and worker threa
 emcmake cmake -G "Unix Makefiles" .
 ````
 
+
+### Out of source builds
+````sh
+emcmake cmake ../<path_to>/ffjs -B <dest folder i.e. .> -Wno-dev
+````
+
+
 #### local compiliation
 
 - -Wno-dev (disable policy warnings)

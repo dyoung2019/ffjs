@@ -1,4 +1,6 @@
-FFMPEG - TODOs 
+TODOs 
+
+FFMPEG
 generate these files
 libavcodec
   - bsf_list.c
@@ -15,3 +17,6 @@ libavformat
   - protocol_list.c
 libavutil
   - avconfig.h
+
+x265
+- dynamic hdr

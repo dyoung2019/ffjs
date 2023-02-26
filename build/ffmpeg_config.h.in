@@ -615,7 +615,7 @@
 #cmakedefine CONFIG_LSP
 #cmakedefine CONFIG_MDCT
 #cmakedefine01 CONFIG_PIXELUTILS
-#cmakedefine CONFIG_NETWORK
+#cmakedefine01 CONFIG_NETWORK
 #cmakedefine CONFIG_RDFT
 #cmakedefine CONFIG_AUTODETECT
 #cmakedefine CONFIG_FONTCONFIG
