@@ -601,7 +601,7 @@
 #cmakedefine CONFIG_POSTPROC
 #cmakedefine CONFIG_AVFORMAT
 #cmakedefine CONFIG_AVCODEC
-#cmakedefine CONFIG_SWRESAMPLE
+#cmakedefine01 CONFIG_SWRESAMPLE
 #cmakedefine CONFIG_AVUTIL
 #cmakedefine CONFIG_FFPLAY
 #cmakedefine CONFIG_FFPROBE

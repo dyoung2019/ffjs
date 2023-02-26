@@ -27,41 +27,6 @@ set_directory_properties(PROPERTIES LINK_FLAGS
   "--pre-js ${FFMPEG_ROOT}/wasm/src/pre.js"
 )
 
-# file(GLOB LIBAVDEVICE_SRC
-#   "${FFMPEG_ROOT}/libavdevice/*.c"
-#   "${FFMPEG_ROOT}/libavdevice/*.cpp"
-# )
-
-# add_Library(libavdevice ${LIBAVDEVICE_SRC})
-
-
-macro(setup_library)
-  # reads the arguments passed down by parent fn
-  foreach(arg IN LISTS ARGN)
-    # message(${arg})
-    # message(${arg}_SRC)
-    file(GLOB ${arg}_SRC
-      "${FFMPEG_ROOT}/${arg}/*.c"
-      "${FFMPEG_ROOT}/${arg}/*.cpp"
-    )
-    add_Library(${arg} ${${arg}_SRC})
-  endforeach()
-endmacro()
-
-function(setup_ff_components)
-  setup_library()
-endfunction()
-
-# setup_ff_components(
-#   libavdevice 
-#   libavfilter 
-#   libavformat 
-#   libavcodec 
-#   libpostproc 
-#   libswresample 
-#   libswscale
-# )
-
 # WRITE OUR OWN CONFIG.H to control x264
 SET(FFMPEG_INCLUDE_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg)
 
@@ -71,12 +36,13 @@ configure_file(./ffmpeg_config.h.in ${FFMPEG_INCLUDE_HEADER_DIR}/config.h NO_SOU
 include(./ffmpeg_config_components.h.in.cmake)
 configure_file(./ffmpeg_config_components.h.in ${FFMPEG_INCLUDE_HEADER_DIR}/config_components.h NO_SOURCE_PERMISSIONS @ONLY)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavutil/CMakeLists.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavutil)
+function(deploy_ff_assemblies module_name)
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/${module_name}/CMakeLists.txt 
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${module_name})
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${module_name})
+endfunction()
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/deploy/ffmpeg/libavdevice/CMakeLists.txt DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavdevice)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavdevice)
+deploy_ff_assemblies(libavutil)
+deploy_ff_assemblies(libavdevice)
+deploy_ff_assemblies(libavfilter)
 
-# include(./ffmpeg.libavutil.cmake)
-# include(./ffmpeg.libavdevice.cmake)
-# include(./ffmpeg.libavfilter.cmake)

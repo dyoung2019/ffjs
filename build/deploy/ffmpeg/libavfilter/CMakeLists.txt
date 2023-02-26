@@ -2,32 +2,25 @@ cmake_minimum_required(VERSION 3.22)
 
 message(VAR(libavfilter) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
 
-SET(AV_DIR ./ffmpeg/libavfilter/)
+SET(AV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/libavfilter/)
 
 add_library(libavfilter STATIC
-	${AV_DIR}avfilter.h 
-	${AV_DIR}buffersink.h        
-	${AV_DIR}buffersrc.h 
-	${AV_DIR}version.h
-	${AV_DIR}version_major.h  
-	${AV_DIR}internal.h 
-	#SRCS
-  ${AV_DIR}allfilters.c
-  ${AV_DIR}audio.c
-  ${AV_DIR}avfilter.c
-  ${AV_DIR}avfiltergraph.c
-  ${AV_DIR}buffersink.c 
-  ${AV_DIR}buffersrc.c
-  ${AV_DIR}colorspace.c 
-  ${AV_DIR}drawutils.c
-  ${AV_DIR}fifo.c 
-  ${AV_DIR}formats.c
-  ${AV_DIR}framepool.c
-  ${AV_DIR}framequeue.c 
-  ${AV_DIR}graphdump.c
-  ${AV_DIR}graphparser.c
-  ${AV_DIR}version.c
-  ${AV_DIR}video.c
+	allfilters.c
+	audio.c
+	avfilter.c
+	avfiltergraph.c
+	buffersink.c
+	buffersrc.c
+	colorspace.c
+	drawutils.c
+	fifo.c
+	formats.c
+	framepool.c
+	framequeue.c
+	graphdump.c
+	graphparser.c
+	version.c
+	video.c
 )
 
 target_include_directories(libavfilter
@@ -38,6 +31,27 @@ target_include_directories(libavfilter
   PRIVATE ${AV_DIR}
 )
 
+set(LIBAVFILTER_C_FLAGS 
+	-Wno-pointer-sign 
+	-Wno-implicit-function-declaration
+	-Wno-switch
+	-Wno-parentheses
+)
+
+target_compile_options(libavfilter PUBLIC -DHAVE_AV_CONFIG_H=1)
+target_compile_options(libavfilter INTERFACE ${LIBAVFILTER_C_FLAGS})
+
+target_include_directories(libavfilter 
+	INTERFACE ${FFMPEG_INCLUDE_HEADER_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_HEADER_DIR}libavutil
+)
+
+target_link_directories(libavfilter 
+	INTERFACE ${FFMPEG_INCLUDE_HEADER_DIR}
+	PRIVATE ${FFMPEG_INCLUDE_HEADER_DIR}libavutil
+)
+
+
 set(device_srcs)
 
 # if (FFMPEG_----- ) 
@@ -46,13 +60,7 @@ set(device_srcs)
 #   )
 # endif()
 
-if (FFMPEG_HAVE_LIBC_MSVCRT ) 
-  list(APPEND device_srcs
-    ${AV_DIR}file_open.c
-  )
-endif()
-
-set(DNN_DIR ${AV_DIR}dnn/)
+set(DNN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dnn/)
 
 if (FFMPEG_CONFIG_DNN )
 
@@ -90,3417 +98,3448 @@ if (FFMPEG_CONFIG_DNN )
 
 endif()
 
-if ( FFMPEG_HAVE_THREADS )
+if ( HAVE_LIBC_MSVCRT )
 	list(APPEND device_srcs
-		${AV_DIR}pthread.c
+		file_open.c
 	)
 endif()
+
+if ( HAVE_THREADS )
+	list(APPEND device_srcs
+		pthread.c
+	)
+endif()
+
 
 # subsystems
-if ( FFMPEG_CONFIG_QSVVPP )
+if ( CONFIG_QSVVPP )
 	list(APPEND device_srcs
-		${AV_DIR}qsvvpp.c
+		qsvvpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCENE_SAD )
+if ( CONFIG_SCENE_SAD )
 	list(APPEND device_srcs
-		${AV_DIR}scene_sad.c
+		scene_sad.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DNN )
+if ( CONFIG_DNN )
 	list(APPEND device_srcs
-		${AV_DIR}dnn_filter_common.c
+		dnn_filter_common.c
 	)
 endif()
 
 # audio filters
-if ( FFMPEG_CONFIG_ABENCH_FILTER )
+if ( CONFIG_ABENCH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_bench.c
+		f_bench.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACOMPRESSOR_FILTER )
+if ( CONFIG_ACOMPRESSOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_sidechaincompress.c
+		af_sidechaincompress.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACONTRAST_FILTER )
+if ( CONFIG_ACONTRAST_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_acontrast.c
+		af_acontrast.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACOPY_FILTER )
+if ( CONFIG_ACOPY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_acopy.c
+		af_acopy.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACROSSFADE_FILTER )
+if ( CONFIG_ACROSSFADE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afade.c
+		af_afade.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACROSSOVER_FILTER )
+if ( CONFIG_ACROSSOVER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_acrossover.c
+		af_acrossover.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACRUSHER_FILTER )
+if ( CONFIG_ACRUSHER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_acrusher.c
+		af_acrusher.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ACUE_FILTER )
+if ( CONFIG_ACUE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_cue.c
+		f_cue.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADECLICK_FILTER )
+if ( CONFIG_ADECLICK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adeclick.c
+		af_adeclick.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADECLIP_FILTER )
+if ( CONFIG_ADECLIP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adeclick.c
+		af_adeclick.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADECORRELATE_FILTER )
+if ( CONFIG_ADECORRELATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adecorrelate.c
+		af_adecorrelate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADELAY_FILTER )
+if ( CONFIG_ADELAY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adelay.c
+		af_adelay.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADENORM_FILTER )
+if ( CONFIG_ADENORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adenorm.c
+		af_adenorm.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADERIVATIVE_FILTER )
+if ( CONFIG_ADERIVATIVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aderivative.c
+		af_aderivative.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADYNAMICEQUALIZER_FILTER )
+if ( CONFIG_ADYNAMICEQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adynamicequalizer.c
+		af_adynamicequalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADYNAMICSMOOTH_FILTER )
+if ( CONFIG_ADYNAMICSMOOTH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_adynamicsmooth.c
+		af_adynamicsmooth.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AECHO_FILTER )
+if ( CONFIG_AECHO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aecho.c
+		af_aecho.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AEMPHASIS_FILTER )
+if ( CONFIG_AEMPHASIS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aemphasis.c
+		af_aemphasis.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AEVAL_FILTER )
+if ( CONFIG_AEVAL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}aeval.c
+		aeval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AEXCITER_FILTER )
+if ( CONFIG_AEXCITER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aexciter.c
+		af_aexciter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFADE_FILTER )
+if ( CONFIG_AFADE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afade.c
+		af_afade.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFFTDN_FILTER )
+if ( CONFIG_AFFTDN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afftdn.c
+		af_afftdn.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFFTFILT_FILTER )
+if ( CONFIG_AFFTFILT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afftfilt.c
+		af_afftfilt.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFIR_FILTER )
+if ( CONFIG_AFIR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afir.c
+		af_afir.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFORMAT_FILTER )
+if ( CONFIG_AFORMAT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aformat.c
+		af_aformat.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFREQSHIFT_FILTER )
+if ( CONFIG_AFREQSHIFT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afreqshift.c
+		af_afreqshift.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFWTDN_FILTER )
+if ( CONFIG_AFWTDN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afwtdn.c
+		af_afwtdn.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AGATE_FILTER )
+if ( CONFIG_AGATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_agate.c
+		af_agate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AIIR_FILTER )
+if ( CONFIG_AIIR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aiir.c
+		af_aiir.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AINTEGRAL_FILTER )
+if ( CONFIG_AINTEGRAL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aderivative.c
+		af_aderivative.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AINTERLEAVE_FILTER )
+if ( CONFIG_AINTERLEAVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_interleave.c
+		f_interleave.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALATENCY_FILTER )
+if ( CONFIG_ALATENCY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_latency.c
+		f_latency.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALIMITER_FILTER )
+if ( CONFIG_ALIMITER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_alimiter.c
+		af_alimiter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALLPASS_FILTER )
+if ( CONFIG_ALLPASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALOOP_FILTER )
+if ( CONFIG_ALOOP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_loop.c
+		f_loop.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMERGE_FILTER )
+if ( CONFIG_AMERGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_amerge.c
+		af_amerge.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMETADATA_FILTER )
+if ( CONFIG_AMETADATA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_metadata.c
+		f_metadata.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMIX_FILTER )
+if ( CONFIG_AMIX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_amix.c
+		af_amix.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMULTIPLY_FILTER )
+if ( CONFIG_AMULTIPLY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_amultiply.c
+		af_amultiply.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANEQUALIZER_FILTER )
+if ( CONFIG_ANEQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_anequalizer.c
+		af_anequalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANLMDN_FILTER )
+if ( CONFIG_ANLMDN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_anlmdn.c
+		af_anlmdn.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANLMF_FILTER )
+if ( CONFIG_ANLMF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_anlms.c
+		af_anlms.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANLMS_FILTER )
+if ( CONFIG_ANLMS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_anlms.c
+		af_anlms.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANULL_FILTER )
+if ( CONFIG_ANULL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_anull.c
+		af_anull.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APAD_FILTER )
+if ( CONFIG_APAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_apad.c
+		af_apad.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APERMS_FILTER )
+if ( CONFIG_APERMS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_perms.c
+		f_perms.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APHASER_FILTER )
+if ( CONFIG_APHASER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aphaser.c
-		${AV_DIR}generate_wave_table.c
+		af_aphaser.c
+		generate_wave_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APHASESHIFT_FILTER )
+if ( CONFIG_APHASESHIFT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_afreqshift.c
+		af_afreqshift.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APSYCLIP_FILTER )
+if ( CONFIG_APSYCLIP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_apsyclip.c
+		af_apsyclip.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APULSATOR_FILTER )
+if ( CONFIG_APULSATOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_apulsator.c
+		af_apulsator.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AREALTIME_FILTER )
+if ( CONFIG_AREALTIME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_realtime.c
+		f_realtime.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ARESAMPLE_FILTER )
+if ( CONFIG_ARESAMPLE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aresample.c
+		af_aresample.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AREVERSE_FILTER )
+if ( CONFIG_AREVERSE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_reverse.c
+		f_reverse.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ARNNDN_FILTER )
+if ( CONFIG_ARNNDN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_arnndn.c
+		af_arnndn.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASDR_FILTER )
+if ( CONFIG_ASDR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asdr.c
+		af_asdr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASEGMENT_FILTER )
+if ( CONFIG_ASEGMENT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_segment.c
+		f_segment.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASELECT_FILTER )
+if ( CONFIG_ASELECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_select.c
+		f_select.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASENDCMD_FILTER )
+if ( CONFIG_ASENDCMD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_sendcmd.c
+		f_sendcmd.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASETNSAMPLES_FILTER )
+if ( CONFIG_ASETNSAMPLES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asetnsamples.c
+		af_asetnsamples.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASETPTS_FILTER )
+if ( CONFIG_ASETPTS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}setpts.c
+		setpts.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASETRATE_FILTER )
+if ( CONFIG_ASETRATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asetrate.c
+		af_asetrate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASETTB_FILTER )
+if ( CONFIG_ASETTB_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}settb.c
+		settb.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASHOWINFO_FILTER )
+if ( CONFIG_ASHOWINFO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_ashowinfo.c
+		af_ashowinfo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASIDEDATA_FILTER )
+if ( CONFIG_ASIDEDATA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_sidedata.c
+		f_sidedata.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASOFTCLIP_FILTER )
+if ( CONFIG_ASOFTCLIP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asoftclip.c
+		af_asoftclip.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASPECTRALSTATS_FILTER )
+if ( CONFIG_ASPECTRALSTATS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_aspectralstats.c
+		af_aspectralstats.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASPLIT_FILTER )
+if ( CONFIG_ASPLIT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}split.c
+		split.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASR_FILTER )
+if ( CONFIG_ASR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asr.c
+		af_asr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASTATS_FILTER )
+if ( CONFIG_ASTATS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_astats.c
+		af_astats.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASTREAMSELECT_FILTER )
+if ( CONFIG_ASTREAMSELECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_streamselect.c
-		${AV_DIR}framesync.c
+		f_streamselect.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASUBBOOST_FILTER )
+if ( CONFIG_ASUBBOOST_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asubboost.c
+		af_asubboost.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASUBCUT_FILTER )
+if ( CONFIG_ASUBCUT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asupercut.c
+		af_asupercut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASUPERCUT_FILTER )
+if ( CONFIG_ASUPERCUT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asupercut.c
+		af_asupercut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASUPERPASS_FILTER )
+if ( CONFIG_ASUPERPASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asupercut.c
+		af_asupercut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASUPERSTOP_FILTER )
+if ( CONFIG_ASUPERSTOP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_asupercut.c
+		af_asupercut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ATEMPO_FILTER )
+if ( CONFIG_ATEMPO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_atempo.c
+		af_atempo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ATILT_FILTER )
+if ( CONFIG_ATILT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_atilt.c
+		af_atilt.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ATRIM_FILTER )
+if ( CONFIG_ATRIM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}trim.c
+		trim.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AXCORRELATE_FILTER )
+if ( CONFIG_AXCORRELATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_axcorrelate.c
+		af_axcorrelate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AZMQ_FILTER )
+if ( CONFIG_AZMQ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_zmq.c
+		f_zmq.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BANDPASS_FILTER )
+if ( CONFIG_BANDPASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BANDREJECT_FILTER )
+if ( CONFIG_BANDREJECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BASS_FILTER )
+if ( CONFIG_BASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BIQUAD_FILTER )
+if ( CONFIG_BIQUAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BS2B_FILTER )
+if ( CONFIG_BS2B_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_bs2b.c
+		af_bs2b.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHANNELMAP_FILTER )
+if ( CONFIG_CHANNELMAP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_channelmap.c
+		af_channelmap.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHANNELSPLIT_FILTER )
+if ( CONFIG_CHANNELSPLIT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_channelsplit.c
+		af_channelsplit.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHORUS_FILTER )
+if ( CONFIG_CHORUS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_chorus.c
-		${AV_DIR}generate_wave_table.c
+		af_chorus.c
+		generate_wave_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COMPAND_FILTER )
+if ( CONFIG_COMPAND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_compand.c
+		af_compand.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COMPENSATIONDELAY_FILTER )
+if ( CONFIG_COMPENSATIONDELAY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_compensationdelay.c
+		af_compensationdelay.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CROSSFEED_FILTER )
+if ( CONFIG_CROSSFEED_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_crossfeed.c
+		af_crossfeed.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CRYSTALIZER_FILTER )
+if ( CONFIG_CRYSTALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_crystalizer.c
+		af_crystalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DCSHIFT_FILTER )
+if ( CONFIG_DCSHIFT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_dcshift.c
+		af_dcshift.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEESSER_FILTER )
+if ( CONFIG_DEESSER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_deesser.c
+		af_deesser.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DIALOGUENHANCE_FILTER )
+if ( CONFIG_DIALOGUENHANCE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_dialoguenhance.c
+		af_dialoguenhance.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DRMETER_FILTER )
+if ( CONFIG_DRMETER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_drmeter.c
+		af_drmeter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DYNAUDNORM_FILTER )
+if ( CONFIG_DYNAUDNORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_dynaudnorm.c
+		af_dynaudnorm.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EARWAX_FILTER )
+if ( CONFIG_EARWAX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_earwax.c
+		af_earwax.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EBUR128_FILTER )
+if ( CONFIG_EBUR128_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_ebur128.c
+		f_ebur128.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EQUALIZER_FILTER )
+if ( CONFIG_EQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EXTRASTEREO_FILTER )
+if ( CONFIG_EXTRASTEREO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_extrastereo.c
+		af_extrastereo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIREQUALIZER_FILTER )
+if ( CONFIG_FIREQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_firequalizer.c
+		af_firequalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FLANGER_FILTER )
+if ( CONFIG_FLANGER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_flanger.c
-		${AV_DIR}generate_wave_table.c
+		af_flanger.c
+		generate_wave_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HAAS_FILTER )
+if ( CONFIG_HAAS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_haas.c
+		af_haas.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HDCD_FILTER )
+if ( CONFIG_HDCD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_hdcd.c
+		af_hdcd.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HEADPHONE_FILTER )
+if ( CONFIG_HEADPHONE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_headphone.c
+		af_headphone.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HIGHPASS_FILTER )
+if ( CONFIG_HIGHPASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HIGHSHELF_FILTER )
+if ( CONFIG_HIGHSHELF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_JOIN_FILTER )
+if ( CONFIG_JOIN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_join.c
+		af_join.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LADSPA_FILTER )
+if ( CONFIG_LADSPA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_ladspa.c
+		af_ladspa.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LOUDNORM_FILTER )
+if ( CONFIG_LOUDNORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_loudnorm.c
-		${AV_DIR}ebur128.c
+		af_loudnorm.c
+		ebur128.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LOWPASS_FILTER )
+if ( CONFIG_LOWPASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LOWSHELF_FILTER )
+if ( CONFIG_LOWSHELF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LV2_FILTER )
+if ( CONFIG_LV2_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_lv2.c
+		af_lv2.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MCOMPAND_FILTER )
+if ( CONFIG_MCOMPAND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_mcompand.c
+		af_mcompand.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PAN_FILTER )
+if ( CONFIG_PAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_pan.c
+		af_pan.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REPLAYGAIN_FILTER )
+if ( CONFIG_REPLAYGAIN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_replaygain.c
+		af_replaygain.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_RUBBERBAND_FILTER )
+if ( CONFIG_RUBBERBAND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_rubberband.c
+		af_rubberband.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIDECHAINCOMPRESS_FILTER )
+if ( CONFIG_SIDECHAINCOMPRESS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_sidechaincompress.c
+		af_sidechaincompress.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIDECHAINGATE_FILTER )
+if ( CONFIG_SIDECHAINGATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_agate.c
+		af_agate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SILENCEDETECT_FILTER )
+if ( CONFIG_SILENCEDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_silencedetect.c
+		af_silencedetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SILENCEREMOVE_FILTER )
+if ( CONFIG_SILENCEREMOVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_silenceremove.c
+		af_silenceremove.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SOFALIZER_FILTER )
+if ( CONFIG_SOFALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_sofalizer.c
+		af_sofalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SPEECHNORM_FILTER )
+if ( CONFIG_SPEECHNORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_speechnorm.c
+		af_speechnorm.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_STEREOTOOLS_FILTER )
+if ( CONFIG_STEREOTOOLS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_stereotools.c
+		af_stereotools.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_STEREOWIDEN_FILTER )
+if ( CONFIG_STEREOWIDEN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_stereowiden.c
+		af_stereowiden.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SUPEREQUALIZER_FILTER )
+if ( CONFIG_SUPEREQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_superequalizer.c
+		af_superequalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SURROUND_FILTER )
+if ( CONFIG_SURROUND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_surround.c
+		af_surround.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TREBLE_FILTER )
+if ( CONFIG_TREBLE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_biquads.c
+		af_biquads.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TREMOLO_FILTER )
+if ( CONFIG_TREMOLO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_tremolo.c
+		af_tremolo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIBRATO_FILTER )
+if ( CONFIG_VIBRATO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_vibrato.c
-		${AV_DIR}generate_wave_table.c
+		af_vibrato.c
+		generate_wave_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIRTUALBASS_FILTER )
+if ( CONFIG_VIRTUALBASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_virtualbass.c
+		af_virtualbass.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VOLUME_FILTER )
+if ( CONFIG_VOLUME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_volume.c
+		af_volume.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VOLUMEDETECT_FILTER )
+if ( CONFIG_VOLUMEDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}af_volumedetect.c
+		af_volumedetect.c
 	)
 endif()
 
 
-if ( FFMPEG_CONFIG_AEVALSRC_FILTER )
+if ( CONFIG_AEVALSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}aeval.c
+		aeval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AFIRSRC_FILTER )
+if ( CONFIG_AFIRSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_afirsrc.c
+		asrc_afirsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANOISESRC_FILTER )
+if ( CONFIG_ANOISESRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_anoisesrc.c
+		asrc_anoisesrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ANULLSRC_FILTER )
+if ( CONFIG_ANULLSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_anullsrc.c
+		asrc_anullsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FLITE_FILTER )
+if ( CONFIG_FLITE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_flite.c
+		asrc_flite.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HILBERT_FILTER )
+if ( CONFIG_HILBERT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_hilbert.c
+		asrc_hilbert.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SINC_FILTER )
+if ( CONFIG_SINC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_sinc.c
+		asrc_sinc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SINE_FILTER )
+if ( CONFIG_SINE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asrc_sine.c
+		asrc_sine.c
 	)
 endif()
 
 
-if ( FFMPEG_CONFIG_ANULLSINK_FILTER )
+if ( CONFIG_ANULLSINK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}asink_anullsink.c
+		asink_anullsink.c
 	)
 endif()
 
 
 # video filters
-if ( FFMPEG_CONFIG_ADDROI_FILTER )
+if ( CONFIG_ADDROI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_addroi.c
+		vf_addroi.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALPHAEXTRACT_FILTER )
+if ( CONFIG_ALPHAEXTRACT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_extractplanes.c
+		vf_extractplanes.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALPHAMERGE_FILTER )
+if ( CONFIG_ALPHAMERGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_alphamerge.c
-		${AV_DIR}framesync.c
+		vf_alphamerge.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMPLIFY_FILTER )
+if ( CONFIG_AMPLIFY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_amplify.c
+		vf_amplify.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ASS_FILTER )
+if ( CONFIG_ASS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_subtitles.c
+		vf_subtitles.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ATADENOISE_FILTER )
+if ( CONFIG_ATADENOISE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_atadenoise.c
+		vf_atadenoise.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AVGBLUR_FILTER )
+if ( CONFIG_AVGBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_avgblur.c
+		vf_avgblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AVGBLUR_OPENCL_FILTER )
+if ( CONFIG_AVGBLUR_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_avgblur_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/avgblur.c
-		${AV_DIR}boxblur.c
+		vf_avgblur_opencl.c
+		opencl.c
+		opencl/avgblur.c
+		boxblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AVGBLUR_VULKAN_FILTER )
+if ( CONFIG_AVGBLUR_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_avgblur_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_avgblur_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BBOX_FILTER )
+if ( CONFIG_BBOX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}bbox.c
-		${AV_DIR}vf_bbox.c
+		bbox.c
+		vf_bbox.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BENCH_FILTER )
+if ( CONFIG_BENCH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_bench.c
+		f_bench.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BILATERAL_FILTER )
+if ( CONFIG_BILATERAL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_bilateral.c
+		vf_bilateral.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BITPLANENOISE_FILTER )
+if ( CONFIG_BITPLANENOISE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_bitplanenoise.c
+		vf_bitplanenoise.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLACKDETECT_FILTER )
+if ( CONFIG_BLACKDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blackdetect.c
+		vf_blackdetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLACKFRAME_FILTER )
+if ( CONFIG_BLACKFRAME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blackframe.c
+		vf_blackframe.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLEND_FILTER )
+if ( CONFIG_BLEND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blend.c
-		${AV_DIR}framesync.c
+		vf_blend.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLEND_VULKAN_FILTER )
+if ( CONFIG_BLEND_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blend_vulkan.c
-		${AV_DIR}framesync.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_blend_vulkan.c
+		framesync.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLOCKDETECT_FILTER )
+if ( CONFIG_BLOCKDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blockdetect.c
+		vf_blockdetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BLURDETECT_FILTER )
+if ( CONFIG_BLURDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blurdetect.c
-		${AV_DIR}edge_common.c
+		vf_blurdetect.c
+		edge_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BM3D_FILTER )
+if ( CONFIG_BM3D_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_bm3d.c
-		${AV_DIR}framesync.c
+		vf_bm3d.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BOXBLUR_FILTER )
+if ( CONFIG_BOXBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_boxblur.c
-		${AV_DIR}boxblur.c
+		vf_boxblur.c
+		boxblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BOXBLUR_OPENCL_FILTER )
+if ( CONFIG_BOXBLUR_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_avgblur_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/avgblur.c
-		${AV_DIR}boxblur.c
+		vf_avgblur_opencl.c
+		opencl.c
+		opencl/avgblur.c
+		boxblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_BWDIF_FILTER )
+if ( CONFIG_BWDIF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_bwdif.c
-		${AV_DIR}yadif_common.c
+		vf_bwdif.c
+		yadif_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CAS_FILTER )
+if ( CONFIG_CAS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_cas.c
+		vf_cas.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHROMABER_VULKAN_FILTER )
+if ( CONFIG_CHROMABER_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromaber_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_chromaber_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHROMAHOLD_FILTER )
+if ( CONFIG_CHROMAHOLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromakey.c
+		vf_chromakey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHROMAKEY_FILTER )
+if ( CONFIG_CHROMAKEY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromakey.c
+		vf_chromakey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHROMAKEY_CUDA_FILTER )
+if ( CONFIG_CHROMAKEY_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromakey_cuda.c
-		${AV_DIR}vf_chromakey_cuda.ptx.c
+		vf_chromakey_cuda.c
+		vf_chromakey_cuda.ptx.c
 	)
 endif()
 
 
-if ( FFMPEG_CONFIG_CHROMANR_FILTER )
+if ( CONFIG_CHROMANR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromanr.c
+		vf_chromanr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CHROMASHIFT_FILTER )
+if ( CONFIG_CHROMASHIFT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromashift.c
+		vf_chromashift.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CIESCOPE_FILTER )
+if ( CONFIG_CIESCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_ciescope.c
+		vf_ciescope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CODECVIEW_FILTER )
+if ( CONFIG_CODECVIEW_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_codecview.c
-		${AV_DIR}qp_table.c
+		vf_codecview.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORBALANCE_FILTER )
+if ( CONFIG_COLORBALANCE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorbalance.c
+		vf_colorbalance.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORCHANNELMIXER_FILTER )
+if ( CONFIG_COLORCHANNELMIXER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorchannelmixer.c
+		vf_colorchannelmixer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORCONTRAST_FILTER )
+if ( CONFIG_COLORCONTRAST_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorcontrast.c
+		vf_colorcontrast.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORCORRECT_FILTER )
+if ( CONFIG_COLORCORRECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorcorrect.c
+		vf_colorcorrect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORIZE_FILTER )
+if ( CONFIG_COLORIZE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorize.c
+		vf_colorize.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORKEY_FILTER )
+if ( CONFIG_COLORKEY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorkey.c
+		vf_colorkey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORKEY_OPENCL_FILTER )
+if ( CONFIG_COLORKEY_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorkey_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/colorkey.c
+		vf_colorkey_opencl.c
+		opencl.c
+		opencl/colorkey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORHOLD_FILTER )
+if ( CONFIG_COLORHOLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorkey.c
+		vf_colorkey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORLEVELS_FILTER )
+if ( CONFIG_COLORLEVELS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorlevels.c
+		vf_colorlevels.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORMAP_FILTER )
+if ( CONFIG_COLORMAP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colormap.c
+		vf_colormap.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORMATRIX_FILTER )
+if ( CONFIG_COLORMATRIX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colormatrix.c
+		vf_colormatrix.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORSPACE_FILTER )
+if ( CONFIG_COLORSPACE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorspace.c
-		${AV_DIR}colorspacedsp.c
+		vf_colorspace.c
+		colorspacedsp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORTEMPERATURE_FILTER )
+if ( CONFIG_COLORTEMPERATURE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colortemperature.c
+		vf_colortemperature.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CONVOLUTION_FILTER )
+if ( CONFIG_CONVOLUTION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CONVOLUTION_OPENCL_FILTER )
+if ( CONFIG_CONVOLUTION_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/convolution.c
+		vf_convolution_opencl.c
+		opencl.c
+		opencl/convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CONVOLVE_FILTER )
+if ( CONFIG_CONVOLVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolve.c
-		${AV_DIR}framesync.c
+		vf_convolve.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COPY_FILTER )
+if ( CONFIG_COPY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_copy.c
+		vf_copy.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COREIMAGE_FILTER )
+if ( CONFIG_COREIMAGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_coreimage.c
+		vf_coreimage.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COVER_RECT_FILTER )
+if ( CONFIG_COVER_RECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_cover_rect.c
-		${AV_DIR}lavfutils.c
+		vf_cover_rect.c
+		lavfutils.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CROP_FILTER )
+if ( CONFIG_CROP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_crop.c
+		vf_crop.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CROPDETECT_FILTER )
+if ( CONFIG_CROPDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_cropdetect.c
+		vf_cropdetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CUE_FILTER )
+if ( CONFIG_CUE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_cue.c
+		f_cue.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CURVES_FILTER )
+if ( CONFIG_CURVES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_curves.c
+		vf_curves.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DATASCOPE_FILTER )
+if ( CONFIG_DATASCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_datascope.c
+		vf_datascope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DBLUR_FILTER )
+if ( CONFIG_DBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dblur.c
+		vf_dblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DCTDNOIZ_FILTER )
+if ( CONFIG_DCTDNOIZ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dctdnoiz.c
+		vf_dctdnoiz.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEBAND_FILTER )
+if ( CONFIG_DEBAND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deband.c
+		vf_deband.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEBLOCK_FILTER )
+if ( CONFIG_DEBLOCK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deblock.c
+		vf_deblock.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DECIMATE_FILTER )
+if ( CONFIG_DECIMATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_decimate.c
+		vf_decimate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DERAIN_FILTER )
+if ( CONFIG_DERAIN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_derain.c
+		vf_derain.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DECONVOLVE_FILTER )
+if ( CONFIG_DECONVOLVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolve.c
-		${AV_DIR}framesync.c
+		vf_convolve.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEDOT_FILTER )
+if ( CONFIG_DEDOT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dedot.c
+		vf_dedot.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEFLATE_FILTER )
+if ( CONFIG_DEFLATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor.c
+		vf_neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEFLICKER_FILTER )
+if ( CONFIG_DEFLICKER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deflicker.c
+		vf_deflicker.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEINTERLACE_QSV_FILTER )
+if ( CONFIG_DEINTERLACE_QSV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deinterlace_qsv.c
+		vf_deinterlace_qsv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEINTERLACE_VAAPI_FILTER )
+if ( CONFIG_DEINTERLACE_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deinterlace_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_deinterlace_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DEJUDDER_FILTER )
+if ( CONFIG_DEJUDDER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dejudder.c
+		vf_dejudder.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DELOGO_FILTER )
+if ( CONFIG_DELOGO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_delogo.c
+		vf_delogo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DENOISE_VAAPI_FILTER )
+if ( CONFIG_DENOISE_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_misc_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_misc_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DESHAKE_OPENCL_FILTER )
+if ( CONFIG_DESHAKE_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deshake_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/deshake.c
-		${AV_DIR}transform.c
+		vf_deshake_opencl.c
+		opencl.c
+		opencl/deshake.c
+		transform.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DESHAKE_FILTER )
+if ( CONFIG_DESHAKE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_deshake.c
-		${AV_DIR}transform.c
+		vf_deshake.c
+		transform.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DESPILL_FILTER )
+if ( CONFIG_DESPILL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_despill.c
+		vf_despill.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DETELECINE_FILTER )
+if ( CONFIG_DETELECINE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_detelecine.c
+		vf_detelecine.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DILATION_FILTER )
+if ( CONFIG_DILATION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor.c
+		vf_neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DILATION_OPENCL_FILTER )
+if ( CONFIG_DILATION_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/neighbor.c
+		vf_neighbor_opencl.c
+		opencl.c
+		opencl/neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DISPLACE_FILTER )
+if ( CONFIG_DISPLACE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_displace.c
-		${AV_DIR}framesync.c
+		vf_displace.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DNN_CLASSIFY_FILTER )
+if ( CONFIG_DNN_CLASSIFY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dnn_classify.c
+		vf_dnn_classify.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DNN_DETECT_FILTER )
+if ( CONFIG_DNN_DETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dnn_detect.c
+		vf_dnn_detect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DNN_PROCESSING_FILTER )
+if ( CONFIG_DNN_PROCESSING_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_dnn_processing.c
+		vf_dnn_processing.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DOUBLEWEAVE_FILTER )
+if ( CONFIG_DOUBLEWEAVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_weave.c
+		vf_weave.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DRAWBOX_FILTER )
+if ( CONFIG_DRAWBOX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_drawbox.c
+		vf_drawbox.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DRAWGRAPH_FILTER )
+if ( CONFIG_DRAWGRAPH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_drawgraph.c
+		f_drawgraph.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DRAWGRID_FILTER )
+if ( CONFIG_DRAWGRID_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_drawbox.c
+		vf_drawbox.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_DRAWTEXT_FILTER )
+if ( CONFIG_DRAWTEXT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_drawtext.c
+		vf_drawtext.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EDGEDETECT_FILTER )
+if ( CONFIG_EDGEDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_edgedetect.c
-		${AV_DIR}edge_common.c
+		vf_edgedetect.c
+		edge_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ELBG_FILTER )
+if ( CONFIG_ELBG_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_elbg.c
+		vf_elbg.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ENTROPY_FILTER )
+if ( CONFIG_ENTROPY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_entropy.c
+		vf_entropy.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EPX_FILTER )
+if ( CONFIG_EPX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_epx.c
+		vf_epx.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EQ_FILTER )
+if ( CONFIG_EQ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_eq.c
+		vf_eq.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EROSION_FILTER )
+if ( CONFIG_EROSION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor.c
+		vf_neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EROSION_OPENCL_FILTER )
+if ( CONFIG_EROSION_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/neighbor.c
+		vf_neighbor_opencl.c
+		opencl.c
+		opencl/neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ESTDIF_FILTER )
+if ( CONFIG_ESTDIF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_estdif.c
+		vf_estdif.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EXPOSURE_FILTER )
+if ( CONFIG_EXPOSURE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_exposure.c
+		vf_exposure.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_EXTRACTPLANES_FILTER )
+if ( CONFIG_EXTRACTPLANES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_extractplanes.c
+		vf_extractplanes.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FADE_FILTER )
+if ( CONFIG_FADE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fade.c
+		vf_fade.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FEEDBACK_FILTER )
+if ( CONFIG_FEEDBACK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_feedback.c
+		vf_feedback.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FFTDNOIZ_FILTER )
+if ( CONFIG_FFTDNOIZ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fftdnoiz.c
+		vf_fftdnoiz.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FFTFILT_FILTER )
+if ( CONFIG_FFTFILT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fftfilt.c
+		vf_fftfilt.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIELD_FILTER )
+if ( CONFIG_FIELD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_field.c
+		vf_field.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIELDHINT_FILTER )
+if ( CONFIG_FIELDHINT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fieldhint.c
+		vf_fieldhint.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIELDMATCH_FILTER )
+if ( CONFIG_FIELDMATCH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fieldmatch.c
+		vf_fieldmatch.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIELDORDER_FILTER )
+if ( CONFIG_FIELDORDER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fieldorder.c
+		vf_fieldorder.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FILLBORDERS_FILTER )
+if ( CONFIG_FILLBORDERS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fillborders.c
+		vf_fillborders.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FIND_RECT_FILTER )
+if ( CONFIG_FIND_RECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_find_rect.c
-		${AV_DIR}lavfutils.c
+		vf_find_rect.c
+		lavfutils.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FLOODFILL_FILTER )
+if ( CONFIG_FLOODFILL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_floodfill.c
+		vf_floodfill.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FORMAT_FILTER )
+if ( CONFIG_FORMAT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_format.c
+		vf_format.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FPS_FILTER )
+if ( CONFIG_FPS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fps.c
+		vf_fps.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FRAMEPACK_FILTER )
+if ( CONFIG_FRAMEPACK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_framepack.c
+		vf_framepack.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FRAMERATE_FILTER )
+if ( CONFIG_FRAMERATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_framerate.c
+		vf_framerate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FRAMESTEP_FILTER )
+if ( CONFIG_FRAMESTEP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_framestep.c
+		vf_framestep.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FREEZEDETECT_FILTER )
+if ( CONFIG_FREEZEDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_freezedetect.c
+		vf_freezedetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FREEZEFRAMES_FILTER )
+if ( CONFIG_FREEZEFRAMES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_freezeframes.c
+		vf_freezeframes.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FREI0R_FILTER )
+if ( CONFIG_FREI0R_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_frei0r.c
+		vf_frei0r.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FSPP_FILTER )
+if ( CONFIG_FSPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_fspp.c
-		${AV_DIR}qp_table.c
+		vf_fspp.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GBLUR_FILTER )
+if ( CONFIG_GBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_gblur.c
+		vf_gblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GBLUR_VULKAN_FILTER )
+if ( CONFIG_GBLUR_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_gblur_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_gblur_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GEQ_FILTER )
+if ( CONFIG_GEQ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_geq.c
+		vf_geq.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GRADFUN_FILTER )
+if ( CONFIG_GRADFUN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_gradfun.c
+		vf_gradfun.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GRAPHMONITOR_FILTER )
+if ( CONFIG_GRAPHMONITOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_graphmonitor.c
+		f_graphmonitor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GRAYWORLD_FILTER )
+if ( CONFIG_GRAYWORLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_grayworld.c
+		vf_grayworld.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GREYEDGE_FILTER )
+if ( CONFIG_GREYEDGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_colorconstancy.c
+		vf_colorconstancy.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GUIDED_FILTER )
+if ( CONFIG_GUIDED_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_guided.c
+		vf_guided.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HALDCLUT_FILTER )
+if ( CONFIG_HALDCLUT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut3d.c
-		${AV_DIR}framesync.c
+		vf_lut3d.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HFLIP_FILTER )
+if ( CONFIG_HFLIP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hflip.c
+		vf_hflip.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HFLIP_VULKAN_FILTER )
+if ( CONFIG_HFLIP_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_flip_vulkan.c
-		${AV_DIR}vulkan.c
+		vf_flip_vulkan.c
+		vulkan.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HISTEQ_FILTER )
+if ( CONFIG_HISTEQ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_histeq.c
+		vf_histeq.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HISTOGRAM_FILTER )
+if ( CONFIG_HISTOGRAM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_histogram.c
+		vf_histogram.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HQDN3D_FILTER )
+if ( CONFIG_HQDN3D_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hqdn3d.c
+		vf_hqdn3d.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HQX_FILTER )
+if ( CONFIG_HQX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hqx.c
+		vf_hqx.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HSTACK_FILTER )
+if ( CONFIG_HSTACK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_stack.c
-		${AV_DIR}framesync.c
+		vf_stack.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HSVHOLD_FILTER )
+if ( CONFIG_HSVHOLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hsvkey.c
+		vf_hsvkey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HSVKEY_FILTER )
+if ( CONFIG_HSVKEY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hsvkey.c
+		vf_hsvkey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HUE_FILTER )
+if ( CONFIG_HUE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hue.c
+		vf_hue.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HUESATURATION_FILTER )
+if ( CONFIG_HUESATURATION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_huesaturation.c
+		vf_huesaturation.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HWDOWNLOAD_FILTER )
+if ( CONFIG_HWDOWNLOAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hwdownload.c
+		vf_hwdownload.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HWMAP_FILTER )
+if ( CONFIG_HWMAP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hwmap.c
+		vf_hwmap.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HWUPLOAD_CUDA_FILTER )
+if ( CONFIG_HWUPLOAD_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hwupload_cuda.c
+		vf_hwupload_cuda.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HWUPLOAD_FILTER )
+if ( CONFIG_HWUPLOAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hwupload.c
+		vf_hwupload.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HYSTERESIS_FILTER )
+if ( CONFIG_HYSTERESIS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_hysteresis.c
-		${AV_DIR}framesync.c
+		vf_hysteresis.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ICCDETECT_FILTER )
+if ( CONFIG_ICCDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_iccdetect.c
-		${AV_DIR}fflcms2.c
+		vf_iccdetect.c
+		fflcms2.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ICCGEN_FILTER )
+if ( CONFIG_ICCGEN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_iccgen.c
-		${AV_DIR}fflcms2.c
+		vf_iccgen.c
+		fflcms2.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_IDENTITY_FILTER )
+if ( CONFIG_IDENTITY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_identity.c
+		vf_identity.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_IDET_FILTER )
+if ( CONFIG_IDET_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_idet.c
+		vf_idet.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_IL_FILTER )
+if ( CONFIG_IL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_il.c
+		vf_il.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_INFLATE_FILTER )
+if ( CONFIG_INFLATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_neighbor.c
+		vf_neighbor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_INTERLACE_FILTER )
+if ( CONFIG_INTERLACE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tinterlace.c
+		vf_tinterlace.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_INTERLEAVE_FILTER )
+if ( CONFIG_INTERLEAVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_interleave.c
+		f_interleave.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_KERNDEINT_FILTER )
+if ( CONFIG_KERNDEINT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_kerndeint.c
+		vf_kerndeint.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_KIRSCH_FILTER )
+if ( CONFIG_KIRSCH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LAGFUN_FILTER )
+if ( CONFIG_LAGFUN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lagfun.c
+		vf_lagfun.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LATENCY_FILTER )
+if ( CONFIG_LATENCY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_latency.c
+		f_latency.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LENSCORRECTION_FILTER )
+if ( CONFIG_LENSCORRECTION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lenscorrection.c
+		vf_lenscorrection.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LENSFUN_FILTER )
+if ( CONFIG_LENSFUN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lensfun.c
+		vf_lensfun.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIBPLACEBO_FILTER )
+if ( CONFIG_LIBPLACEBO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_libplacebo.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_libplacebo.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIBVMAF_FILTER )
+if ( CONFIG_LIBVMAF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_libvmaf.c
-		${AV_DIR}framesync.c
+		vf_libvmaf.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIMITDIFF_FILTER )
+if ( CONFIG_LIMITDIFF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_limitdiff.c
-		${AV_DIR}framesync.c
+		vf_limitdiff.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIMITER_FILTER )
+if ( CONFIG_LIMITER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_limiter.c
+		vf_limiter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LOOP_FILTER )
+if ( CONFIG_LOOP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_loop.c
+		f_loop.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUMAKEY_FILTER )
+if ( CONFIG_LUMAKEY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lumakey.c
+		vf_lumakey.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUT1D_FILTER )
+if ( CONFIG_LUT1D_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut3d.c
+		vf_lut3d.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUT_FILTER )
+if ( CONFIG_LUT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut.c
+		vf_lut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUT2_FILTER )
+if ( CONFIG_LUT2_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut2.c
-		${AV_DIR}framesync.c
+		vf_lut2.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUT3D_FILTER )
+if ( CONFIG_LUT3D_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut3d.c
-		${AV_DIR}framesync.c
+		vf_lut3d.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUTRGB_FILTER )
+if ( CONFIG_LUTRGB_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut.c
+		vf_lut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LUTYUV_FILTER )
+if ( CONFIG_LUTYUV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut.c
+		vf_lut.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKEDCLAMP_FILTER )
+if ( CONFIG_MASKEDCLAMP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskedclamp.c
-		${AV_DIR}framesync.c
+		vf_maskedclamp.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKEDMAX_FILTER )
+if ( CONFIG_MASKEDMAX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskedminmax.c
-		${AV_DIR}framesync.c
+		vf_maskedminmax.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKEDMERGE_FILTER )
+if ( CONFIG_MASKEDMERGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskedmerge.c
-		${AV_DIR}framesync.c
+		vf_maskedmerge.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKEDMIN_FILTER )
+if ( CONFIG_MASKEDMIN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskedminmax.c
-		${AV_DIR}framesync.c
+		vf_maskedminmax.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKEDTHRESHOLD_FILTER )
+if ( CONFIG_MASKEDTHRESHOLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskedthreshold.c
-		${AV_DIR}framesync.c
+		vf_maskedthreshold.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MASKFUN_FILTER )
+if ( CONFIG_MASKFUN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_maskfun.c
+		vf_maskfun.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MCDEINT_FILTER )
+if ( CONFIG_MCDEINT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mcdeint.c
+		vf_mcdeint.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MEDIAN_FILTER )
+if ( CONFIG_MEDIAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_median.c
+		vf_median.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MERGEPLANES_FILTER )
+if ( CONFIG_MERGEPLANES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mergeplanes.c
-		${AV_DIR}framesync.c
+		vf_mergeplanes.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MESTIMATE_FILTER )
+if ( CONFIG_MESTIMATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mestimate.c
-		${AV_DIR}motion_estimation.c
+		vf_mestimate.c
+		motion_estimation.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_METADATA_FILTER )
+if ( CONFIG_METADATA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_metadata.c
+		f_metadata.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MIDEQUALIZER_FILTER )
+if ( CONFIG_MIDEQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_midequalizer.c
-		${AV_DIR}framesync.c
+		vf_midequalizer.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MINTERPOLATE_FILTER )
+if ( CONFIG_MINTERPOLATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_minterpolate.c
-		${AV_DIR}motion_estimation.c
+		vf_minterpolate.c
+		motion_estimation.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MIX_FILTER )
+if ( CONFIG_MIX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mix.c
-		${AV_DIR}framesync.c
+		vf_mix.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MONOCHROME_FILTER )
+if ( CONFIG_MONOCHROME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_monochrome.c
+		vf_monochrome.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MORPHO_FILTER )
+if ( CONFIG_MORPHO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_morpho.c
+		vf_morpho.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MPDECIMATE_FILTER )
+if ( CONFIG_MPDECIMATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mpdecimate.c
+		vf_mpdecimate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MULTIPLY_FILTER )
+if ( CONFIG_MULTIPLY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_multiply.c
+		vf_multiply.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NEGATE_FILTER )
+if ( CONFIG_NEGATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_negate.c
+		vf_negate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NLMEANS_FILTER )
+if ( CONFIG_NLMEANS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_nlmeans.c
+		vf_nlmeans.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NLMEANS_OPENCL_FILTER )
+if ( CONFIG_NLMEANS_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_nlmeans_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/nlmeans.c
+		vf_nlmeans_opencl.c
+		opencl.c
+		opencl/nlmeans.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NNEDI_FILTER )
+if ( CONFIG_NNEDI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_nnedi.c
+		vf_nnedi.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NOFORMAT_FILTER )
+if ( CONFIG_NOFORMAT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_format.c
+		vf_format.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NOISE_FILTER )
+if ( CONFIG_NOISE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_noise.c
+		vf_noise.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NORMALIZE_FILTER )
+if ( CONFIG_NORMALIZE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_normalize.c
+		vf_normalize.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NULL_FILTER )
+if ( CONFIG_NULL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_null.c
+		vf_null.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OCR_FILTER )
+if ( CONFIG_OCR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_ocr.c
+		vf_ocr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OCV_FILTER )
+if ( CONFIG_OCV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_libopencv.c
+		vf_libopencv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OSCILLOSCOPE_FILTER )
+if ( CONFIG_OSCILLOSCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_datascope.c
+		vf_datascope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_FILTER )
+if ( CONFIG_OVERLAY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay.c
-		${AV_DIR}framesync.c
+		vf_overlay.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_CUDA_FILTER )
+if ( CONFIG_OVERLAY_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay_cuda.c
-		${AV_DIR}framesync.c
-		${AV_DIR}vf_overlay_cuda.ptx.c
-		${AV_DIR}cuda/load_helper.c
+		vf_overlay_cuda.c
+		framesync.c
+		vf_overlay_cuda.ptx.c
+		cuda/load_helper.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_OPENCL_FILTER )
+if ( CONFIG_OVERLAY_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/overlay.c
-		${AV_DIR}framesync.c
+		vf_overlay_opencl.c
+		opencl.c
+		opencl/overlay.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_QSV_FILTER )
+if ( CONFIG_OVERLAY_QSV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay_qsv.c
-		${AV_DIR}framesync.c
+		vf_overlay_qsv.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_VAAPI_FILTER )
+if ( CONFIG_OVERLAY_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay_vaapi.c
-		${AV_DIR}framesync.c
-		${AV_DIR}vaapi_vpp.c
+		vf_overlay_vaapi.c
+		framesync.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OVERLAY_VULKAN_FILTER )
+if ( CONFIG_OVERLAY_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_overlay_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_overlay_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OWDENOISE_FILTER )
+if ( CONFIG_OWDENOISE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_owdenoise.c
+		vf_owdenoise.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PAD_FILTER )
+if ( CONFIG_PAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pad.c
+		vf_pad.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PAD_OPENCL_FILTER )
+if ( CONFIG_PAD_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pad_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/pad.c
+		vf_pad_opencl.c
+		opencl.c
+		opencl/pad.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PALETTEGEN_FILTER )
+if ( CONFIG_PALETTEGEN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_palettegen.c
+		vf_palettegen.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PALETTEUSE_FILTER )
+if ( CONFIG_PALETTEUSE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_paletteuse.c
-		${AV_DIR}framesync.c
+		vf_paletteuse.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PERMS_FILTER )
+if ( CONFIG_PERMS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_perms.c
+		f_perms.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PERSPECTIVE_FILTER )
+if ( CONFIG_PERSPECTIVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_perspective.c
+		vf_perspective.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PHASE_FILTER )
+if ( CONFIG_PHASE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_phase.c
+		vf_phase.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PHOTOSENSITIVITY_FILTER )
+if ( CONFIG_PHOTOSENSITIVITY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_photosensitivity.c
+		vf_photosensitivity.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PIXDESCTEST_FILTER )
+if ( CONFIG_PIXDESCTEST_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pixdesctest.c
+		vf_pixdesctest.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PIXELIZE_FILTER )
+if ( CONFIG_PIXELIZE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pixelize.c
+		vf_pixelize.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PIXSCOPE_FILTER )
+if ( CONFIG_PIXSCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_datascope.c
+		vf_datascope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PP_FILTER )
+if ( CONFIG_PP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pp.c
-		${AV_DIR}qp_table.c
+		vf_pp.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PP7_FILTER )
+if ( CONFIG_PP7_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pp7.c
-		${AV_DIR}qp_table.c
+		vf_pp7.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PREMULTIPLY_FILTER )
+if ( CONFIG_PREMULTIPLY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_premultiply.c
-		${AV_DIR}framesync.c
+		vf_premultiply.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PREWITT_FILTER )
+if ( CONFIG_PREWITT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PREWITT_OPENCL_FILTER )
+if ( CONFIG_PREWITT_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/convolution.c
+		vf_convolution_opencl.c
+		opencl.c
+		opencl/convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PROCAMP_VAAPI_FILTER )
+if ( CONFIG_PROCAMP_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_procamp_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_procamp_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PROGRAM_OPENCL_FILTER )
+if ( CONFIG_PROGRAM_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_program_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}framesync.c
+		vf_program_opencl.c
+		opencl.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PSEUDOCOLOR_FILTER )
+if ( CONFIG_PSEUDOCOLOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pseudocolor.c
+		vf_pseudocolor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PSNR_FILTER )
+if ( CONFIG_PSNR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_psnr.c
-		${AV_DIR}framesync.c
+		vf_psnr.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PULLUP_FILTER )
+if ( CONFIG_PULLUP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_pullup.c
+		vf_pullup.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_QP_FILTER )
+if ( CONFIG_QP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_qp.c
+		vf_qp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_RANDOM_FILTER )
+if ( CONFIG_RANDOM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_random.c
+		vf_random.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_READEIA608_FILTER )
+if ( CONFIG_READEIA608_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_readeia608.c
+		vf_readeia608.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_READVITC_FILTER )
+if ( CONFIG_READVITC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_readvitc.c
+		vf_readvitc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REALTIME_FILTER )
+if ( CONFIG_REALTIME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_realtime.c
+		f_realtime.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REMAP_FILTER )
+if ( CONFIG_REMAP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_remap.c
-		${AV_DIR}framesync.c
+		vf_remap.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REMAP_OPENCL_FILTER )
+if ( CONFIG_REMAP_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_remap_opencl.c
-		${AV_DIR}framesync.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/remap.c
+		vf_remap_opencl.c
+		framesync.c
+		opencl.c
+		opencl/remap.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REMOVEGRAIN_FILTER )
+if ( CONFIG_REMOVEGRAIN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_removegrain.c
+		vf_removegrain.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REMOVELOGO_FILTER )
+if ( CONFIG_REMOVELOGO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}bbox.c
-		${AV_DIR}lswsutils.c
-		${AV_DIR}lavfutils.c
-		${AV_DIR}vf_removelogo.c
+		bbox.c
+		lswsutils.c
+		lavfutils.c
+		vf_removelogo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REPEATFIELDS_FILTER )
+if ( CONFIG_REPEATFIELDS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_repeatfields.c
+		vf_repeatfields.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_REVERSE_FILTER )
+if ( CONFIG_REVERSE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_reverse.c
+		f_reverse.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_RGBASHIFT_FILTER )
+if ( CONFIG_RGBASHIFT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_chromashift.c
+		vf_chromashift.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ROBERTS_FILTER )
+if ( CONFIG_ROBERTS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ROBERTS_OPENCL_FILTER )
+if ( CONFIG_ROBERTS_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/convolution.c
+		vf_convolution_opencl.c
+		opencl.c
+		opencl/convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ROTATE_FILTER )
+if ( CONFIG_ROTATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_rotate.c
+		vf_rotate.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SAB_FILTER )
+if ( CONFIG_SAB_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_sab.c
+		vf_sab.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_FILTER )
+if ( CONFIG_SCALE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale.c
-		${AV_DIR}scale_eval.c
+		vf_scale.c
+		scale_eval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_CUDA_FILTER )
+if ( CONFIG_SCALE_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_cuda.c
-		${AV_DIR}scale_eval.c
-		${AV_DIR}vf_scale_cuda.ptx.c
-		${AV_DIR}cuda/load_helper.c
+		vf_scale_cuda.c
+		scale_eval.c
+		vf_scale_cuda.ptx.c
+		cuda/load_helper.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_NPP_FILTER )
+if ( CONFIG_SCALE_NPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_npp.c
-		${AV_DIR}scale_eval.c
+		vf_scale_npp.c
+		scale_eval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_QSV_FILTER )
+if ( CONFIG_SCALE_QSV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_qsv.c
+		vf_scale_qsv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_VAAPI_FILTER )
+if ( CONFIG_SCALE_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_vaapi.c
-		${AV_DIR}scale_eval.c
-		${AV_DIR}vaapi_vpp.c
+		vf_scale_vaapi.c
+		scale_eval.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE_VULKAN_FILTER )
+if ( CONFIG_SCALE_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_scale_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE2REF_FILTER )
+if ( CONFIG_SCALE2REF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale.c
-		${AV_DIR}scale_eval.c
+		vf_scale.c
+		scale_eval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCALE2REF_NPP_FILTER )
+if ( CONFIG_SCALE2REF_NPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scale_npp.c
-		${AV_DIR}scale_eval.c
+		vf_scale_npp.c
+		scale_eval.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCDET_FILTER )
+if ( CONFIG_SCDET_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scdet.c
+		vf_scdet.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCHARR_FILTER )
+if ( CONFIG_SCHARR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SCROLL_FILTER )
+if ( CONFIG_SCROLL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_scroll.c
+		vf_scroll.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SEGMENT_FILTER )
+if ( CONFIG_SEGMENT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_segment.c
+		f_segment.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SELECT_FILTER )
+if ( CONFIG_SELECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_select.c
+		f_select.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SELECTIVECOLOR_FILTER )
+if ( CONFIG_SELECTIVECOLOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_selectivecolor.c
+		vf_selectivecolor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SENDCMD_FILTER )
+if ( CONFIG_SENDCMD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_sendcmd.c
+		f_sendcmd.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SEPARATEFIELDS_FILTER )
+if ( CONFIG_SEPARATEFIELDS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_separatefields.c
+		vf_separatefields.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETDAR_FILTER )
+if ( CONFIG_SETDAR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_aspect.c
+		vf_aspect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETFIELD_FILTER )
+if ( CONFIG_SETFIELD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_setparams.c
+		vf_setparams.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETPARAMS_FILTER )
+if ( CONFIG_SETPARAMS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_setparams.c
+		vf_setparams.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETPTS_FILTER )
+if ( CONFIG_SETPTS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}setpts.c
+		setpts.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETRANGE_FILTER )
+if ( CONFIG_SETRANGE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_setparams.c
+		vf_setparams.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETSAR_FILTER )
+if ( CONFIG_SETSAR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_aspect.c
+		vf_aspect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SETTB_FILTER )
+if ( CONFIG_SETTB_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}settb.c
+		settb.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHARPEN_NPP_FILTER )
+if ( CONFIG_SHARPEN_NPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_sharpen_npp.c
+		vf_sharpen_npp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHARPNESS_VAAPI_FILTER )
+if ( CONFIG_SHARPNESS_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_misc_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_misc_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHEAR_FILTER )
+if ( CONFIG_SHEAR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_shear.c
+		vf_shear.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWINFO_FILTER )
+if ( CONFIG_SHOWINFO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_showinfo.c
+		vf_showinfo.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWPALETTE_FILTER )
+if ( CONFIG_SHOWPALETTE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_showpalette.c
+		vf_showpalette.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHUFFLEFRAMES_FILTER )
+if ( CONFIG_SHUFFLEFRAMES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_shuffleframes.c
+		vf_shuffleframes.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHUFFLEPIXELS_FILTER )
+if ( CONFIG_SHUFFLEPIXELS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_shufflepixels.c
+		vf_shufflepixels.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHUFFLEPLANES_FILTER )
+if ( CONFIG_SHUFFLEPLANES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_shuffleplanes.c
+		vf_shuffleplanes.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIDEDATA_FILTER )
+if ( CONFIG_SIDEDATA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_sidedata.c
+		f_sidedata.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIGNALSTATS_FILTER )
+if ( CONFIG_SIGNALSTATS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_signalstats.c
+		vf_signalstats.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIGNATURE_FILTER )
+if ( CONFIG_SIGNATURE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_signature.c
+		vf_signature.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SMARTBLUR_FILTER )
+if ( CONFIG_SMARTBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_smartblur.c
+		vf_smartblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SOBEL_FILTER )
+if ( CONFIG_SOBEL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution.c
+		vf_convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SOBEL_OPENCL_FILTER )
+if ( CONFIG_SOBEL_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolution_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/convolution.c
+		vf_convolution_opencl.c
+		opencl.c
+		opencl/convolution.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SITI_FILTER )
+if ( CONFIG_SITI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_siti.c
+		vf_siti.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SPLIT_FILTER )
+if ( CONFIG_SPLIT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}split.c
+		split.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SPP_FILTER )
+if ( CONFIG_SPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_spp.c
-		${AV_DIR}qp_table.c
+		vf_spp.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SR_FILTER )
+if ( CONFIG_SR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_sr.c
+		vf_sr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SSIM_FILTER )
+if ( CONFIG_SSIM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_ssim.c
-		${AV_DIR}framesync.c
+		vf_ssim.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_STEREO3D_FILTER )
+if ( CONFIG_STEREO3D_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_stereo3d.c
+		vf_stereo3d.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_STREAMSELECT_FILTER )
+if ( CONFIG_STREAMSELECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_streamselect.c
-		${AV_DIR}framesync.c
+		f_streamselect.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SUBTITLES_FILTER )
+if ( CONFIG_SUBTITLES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_subtitles.c
+		vf_subtitles.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SUPER2XSAI_FILTER )
+if ( CONFIG_SUPER2XSAI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_super2xsai.c
+		vf_super2xsai.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SWAPRECT_FILTER )
+if ( CONFIG_SWAPRECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_swaprect.c
+		vf_swaprect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SWAPUV_FILTER )
+if ( CONFIG_SWAPUV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_swapuv.c
+		vf_swapuv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TBLEND_FILTER )
+if ( CONFIG_TBLEND_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_blend.c
-		${AV_DIR}framesync.c
+		vf_blend.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TELECINE_FILTER )
+if ( CONFIG_TELECINE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_telecine.c
+		vf_telecine.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_THISTOGRAM_FILTER )
+if ( CONFIG_THISTOGRAM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_histogram.c
+		vf_histogram.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_THRESHOLD_FILTER )
+if ( CONFIG_THRESHOLD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_threshold.c
-		${AV_DIR}framesync.c
+		vf_threshold.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_THUMBNAIL_FILTER )
+if ( CONFIG_THUMBNAIL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_thumbnail.c
+		vf_thumbnail.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_THUMBNAIL_CUDA_FILTER )
+if ( CONFIG_THUMBNAIL_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_thumbnail_cuda.c
-		${AV_DIR}vf_thumbnail_cuda.ptx.c
-		${AV_DIR}cuda/load_helper.c
+		vf_thumbnail_cuda.c
+		vf_thumbnail_cuda.ptx.c
+		cuda/load_helper.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TILE_FILTER )
+if ( CONFIG_TILE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tile.c
+		vf_tile.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TINTERLACE_FILTER )
+if ( CONFIG_TINTERLACE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tinterlace.c
+		vf_tinterlace.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TLUT2_FILTER )
+if ( CONFIG_TLUT2_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_lut2.c
-		${AV_DIR}framesync.c
+		vf_lut2.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TMEDIAN_FILTER )
+if ( CONFIG_TMEDIAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_xmedian.c
-		${AV_DIR}framesync.c
+		vf_xmedian.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TMIDEQUALIZER_FILTER )
+if ( CONFIG_TMIDEQUALIZER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tmidequalizer.c
+		vf_tmidequalizer.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TMIX_FILTER )
+if ( CONFIG_TMIX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_mix.c
-		${AV_DIR}framesync.c
+		vf_mix.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TONEMAP_FILTER )
+if ( CONFIG_TONEMAP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tonemap.c
+		vf_tonemap.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TONEMAP_OPENCL_FILTER )
+if ( CONFIG_TONEMAP_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tonemap_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/tonemap.c
-		${AV_DIR}opencl/colorspace_common.c
+		vf_tonemap_opencl.c
+		opencl.c
+		opencl/tonemap.c
+		opencl/colorspace_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TONEMAP_VAAPI_FILTER )
+if ( CONFIG_TONEMAP_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tonemap_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_tonemap_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TPAD_FILTER )
+if ( CONFIG_TPAD_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_tpad.c
+		vf_tpad.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRANSPOSE_FILTER )
+if ( CONFIG_TRANSPOSE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_transpose.c
+		vf_transpose.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRANSPOSE_NPP_FILTER )
+if ( CONFIG_TRANSPOSE_NPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_transpose_npp.c
+		vf_transpose_npp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRANSPOSE_OPENCL_FILTER )
+if ( CONFIG_TRANSPOSE_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_transpose_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/transpose.c
+		vf_transpose_opencl.c
+		opencl.c
+		opencl/transpose.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRANSPOSE_VAAPI_FILTER )
+if ( CONFIG_TRANSPOSE_VAAPI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_transpose_vaapi.c
-		${AV_DIR}vaapi_vpp.c
+		vf_transpose_vaapi.c
+		vaapi_vpp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRANSPOSE_VULKAN_FILTER )
+if ( CONFIG_TRANSPOSE_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_transpose_vulkan.c
-		${AV_DIR}vulkan.c
-		${AV_DIR}vulkan_filter.c
+		vf_transpose_vulkan.c
+		vulkan.c
+		vulkan_filter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TRIM_FILTER )
+if ( CONFIG_TRIM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}trim.c
+		trim.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_UNPREMULTIPLY_FILTER )
+if ( CONFIG_UNPREMULTIPLY_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_premultiply.c
-		${AV_DIR}framesync.c
+		vf_premultiply.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_UNSHARP_FILTER )
+if ( CONFIG_UNSHARP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_unsharp.c
+		vf_unsharp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_UNSHARP_OPENCL_FILTER )
+if ( CONFIG_UNSHARP_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_unsharp_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/unsharp.c
+		vf_unsharp_opencl.c
+		opencl.c
+		opencl/unsharp.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_UNTILE_FILTER )
+if ( CONFIG_UNTILE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_untile.c
+		vf_untile.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_USPP_FILTER )
+if ( CONFIG_USPP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_uspp.c
-		${AV_DIR}qp_table.c
+		vf_uspp.c
+		qp_table.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_V360_FILTER )
+if ( CONFIG_V360_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_v360.c
+		vf_v360.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VAGUEDENOISER_FILTER )
+if ( CONFIG_VAGUEDENOISER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vaguedenoiser.c
+		vf_vaguedenoiser.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VARBLUR_FILTER )
+if ( CONFIG_VARBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_varblur.c
-		${AV_DIR}framesync.c
+		vf_varblur.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VECTORSCOPE_FILTER )
+if ( CONFIG_VECTORSCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vectorscope.c
+		vf_vectorscope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VFLIP_FILTER )
+if ( CONFIG_VFLIP_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vflip.c
+		vf_vflip.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VFLIP_VULKAN_FILTER )
+if ( CONFIG_VFLIP_VULKAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_flip_vulkan.c
-		${AV_DIR}vulkan.c
+		vf_flip_vulkan.c
+		vulkan.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VFRDET_FILTER )
+if ( CONFIG_VFRDET_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vfrdet.c
+		vf_vfrdet.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIBRANCE_FILTER )
+if ( CONFIG_VIBRANCE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vibrance.c
+		vf_vibrance.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIDSTABDETECT_FILTER )
+if ( CONFIG_VIDSTABDETECT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vidstabutils.c
-		${AV_DIR}vf_vidstabdetect.c
+		vidstabutils.c
+		vf_vidstabdetect.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIDSTABTRANSFORM_FILTER )
+if ( CONFIG_VIDSTABTRANSFORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vidstabutils.c
-		${AV_DIR}vf_vidstabtransform.c
+		vidstabutils.c
+		vf_vidstabtransform.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIF_FILTER )
+if ( CONFIG_VIF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vif.c
-		${AV_DIR}framesync.c
+		vf_vif.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VIGNETTE_FILTER )
+if ( CONFIG_VIGNETTE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vignette.c
+		vf_vignette.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VMAFMOTION_FILTER )
+if ( CONFIG_VMAFMOTION_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vmafmotion.c
-		${AV_DIR}framesync.c
+		vf_vmafmotion.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VPP_QSV_FILTER )
+if ( CONFIG_VPP_QSV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_vpp_qsv.c
+		vf_vpp_qsv.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_VSTACK_FILTER )
+if ( CONFIG_VSTACK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_stack.c
-		${AV_DIR}framesync.c
+		vf_stack.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_W3FDIF_FILTER )
+if ( CONFIG_W3FDIF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_w3fdif.c
+		vf_w3fdif.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_WAVEFORM_FILTER )
+if ( CONFIG_WAVEFORM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_waveform.c
+		vf_waveform.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_WEAVE_FILTER )
+if ( CONFIG_WEAVE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_weave.c
+		vf_weave.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XBR_FILTER )
+if ( CONFIG_XBR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_xbr.c
+		vf_xbr.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XCORRELATE_FILTER )
+if ( CONFIG_XCORRELATE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_convolve.c
-		${AV_DIR}framesync.c
+		vf_convolve.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XFADE_FILTER )
+if ( CONFIG_XFADE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_xfade.c
+		vf_xfade.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XFADE_OPENCL_FILTER )
+if ( CONFIG_XFADE_OPENCL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_xfade_opencl.c
-		${AV_DIR}opencl.c
-		${AV_DIR}opencl/xfade.c
+		vf_xfade_opencl.c
+		opencl.c
+		opencl/xfade.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XMEDIAN_FILTER )
+if ( CONFIG_XMEDIAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_xmedian.c
-		${AV_DIR}framesync.c
+		vf_xmedian.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_XSTACK_FILTER )
+if ( CONFIG_XSTACK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_stack.c
-		${AV_DIR}framesync.c
+		vf_stack.c
+		framesync.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_YADIF_FILTER )
+if ( CONFIG_YADIF_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_yadif.c
-		${AV_DIR}yadif_common.c
+		vf_yadif.c
+		yadif_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_YADIF_CUDA_FILTER )
+if ( CONFIG_YADIF_CUDA_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_yadif_cuda.c
-		${AV_DIR}vf_yadif_cuda.ptx.c
-		${AV_DIR}yadif_common.c
-		${AV_DIR}cuda/load_helper.c
+		vf_yadif_cuda.c
+		vf_yadif_cuda.ptx.c
+		yadif_common.c
+		cuda/load_helper.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_YADIF_VIDEOTOOLBOX_FILTER )
+if ( CONFIG_YADIF_VIDEOTOOLBOX_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_yadif_videotoolbox.c
-		${AV_DIR}metal/vf_yadif_videotoolbox.metallib.c
-		${AV_DIR}metal/utils.c
-		${AV_DIR}yadif_common.c
+		vf_yadif_videotoolbox.c
+		metal/vf_yadif_videotoolbox.metallib.c
+		metal/utils.c
+		yadif_common.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_YAEPBLUR_FILTER )
+if ( CONFIG_YAEPBLUR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_yaepblur.c
+		vf_yaepblur.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ZMQ_FILTER )
+if ( CONFIG_ZMQ_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_zmq.c
+		f_zmq.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ZOOMPAN_FILTER )
+if ( CONFIG_ZOOMPAN_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_zoompan.c
+		vf_zoompan.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ZSCALE_FILTER )
+if ( CONFIG_ZSCALE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_zscale.c
+		vf_zscale.c
 	)
 endif()
 
 
-if ( FFMPEG_CONFIG_ALLRGB_FILTER )
+if ( CONFIG_ALLRGB_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ALLYUV_FILTER )
+if ( CONFIG_ALLYUV_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CELLAUTO_FILTER )
+if ( CONFIG_CELLAUTO_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_cellauto.c
+		vsrc_cellauto.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLOR_FILTER )
+if ( CONFIG_COLOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORCHART_FILTER )
+if ( CONFIG_COLORCHART_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COLORSPECTRUM_FILTER )
+if ( CONFIG_COLORSPECTRUM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_COREIMAGESRC_FILTER )
+if ( CONFIG_COREIMAGESRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_coreimage.c
+		vf_coreimage.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_FREI0R_SRC_FILTER )
+if ( CONFIG_FREI0R_SRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_frei0r.c
+		vf_frei0r.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_GRADIENTS_FILTER )
+if ( CONFIG_GRADIENTS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_gradients.c
+		vsrc_gradients.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_HALDCLUTSRC_FILTER )
+if ( CONFIG_HALDCLUTSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_LIFE_FILTER )
+if ( CONFIG_LIFE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_life.c
+		vsrc_life.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MANDELBROT_FILTER )
+if ( CONFIG_MANDELBROT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_mandelbrot.c
+		vsrc_mandelbrot.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MPTESTSRC_FILTER )
+if ( CONFIG_MPTESTSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_mptestsrc.c
+		vsrc_mptestsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_NULLSRC_FILTER )
+if ( CONFIG_NULLSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_OPENCLSRC_FILTER )
+if ( CONFIG_OPENCLSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vf_program_opencl.c
-		${AV_DIR}opencl.c
+		vf_program_opencl.c
+		opencl.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PAL75BARS_FILTER )
+if ( CONFIG_PAL75BARS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_PAL100BARS_FILTER )
+if ( CONFIG_PAL100BARS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_RGBTESTSRC_FILTER )
+if ( CONFIG_RGBTESTSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SIERPINSKI_FILTER )
+if ( CONFIG_SIERPINSKI_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_sierpinski.c
+		vsrc_sierpinski.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SMPTEBARS_FILTER )
+if ( CONFIG_SMPTEBARS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SMPTEHDBARS_FILTER )
+if ( CONFIG_SMPTEHDBARS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TESTSRC_FILTER )
+if ( CONFIG_TESTSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_TESTSRC2_FILTER )
+if ( CONFIG_TESTSRC2_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_YUVTESTSRC_FILTER )
+if ( CONFIG_YUVTESTSRC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsrc_testsrc.c
+		vsrc_testsrc.c
 	)
 endif()
 
 
-if ( FFMPEG_CONFIG_NULLSINK_FILTER )
+if ( CONFIG_NULLSINK_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vsink_nullsink.c
+		vsink_nullsink.c
 	)
 endif()
 
 
 # multimedia filters
-if ( FFMPEG_CONFIG_ABITSCOPE_FILTER )
+if ( CONFIG_ABITSCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_abitscope.c
+		avf_abitscope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_ADRAWGRAPH_FILTER )
+if ( CONFIG_ADRAWGRAPH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_drawgraph.c
+		f_drawgraph.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AGRAPHMONITOR_FILTER )
+if ( CONFIG_AGRAPHMONITOR_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}f_graphmonitor.c
+		f_graphmonitor.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AHISTOGRAM_FILTER )
+if ( CONFIG_AHISTOGRAM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_ahistogram.c
+		avf_ahistogram.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_APHASEMETER_FILTER )
+if ( CONFIG_APHASEMETER_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_aphasemeter.c
+		avf_aphasemeter.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AVECTORSCOPE_FILTER )
+if ( CONFIG_AVECTORSCOPE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_avectorscope.c
+		avf_avectorscope.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_CONCAT_FILTER )
+if ( CONFIG_CONCAT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_concat.c
+		avf_concat.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWCQT_FILTER )
+if ( CONFIG_SHOWCQT_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showcqt.c
-		${AV_DIR}lswsutils.c
-		${AV_DIR}lavfutils.c
+		avf_showcqt.c
+		lswsutils.c
+		lavfutils.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWFREQS_FILTER )
+if ( CONFIG_SHOWFREQS_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showfreqs.c
+		avf_showfreqs.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWSPATIAL_FILTER )
+if ( CONFIG_SHOWSPATIAL_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showspatial.c
+		avf_showspatial.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWSPECTRUM_FILTER )
+if ( CONFIG_SHOWSPECTRUM_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showspectrum.c
+		avf_showspectrum.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWSPECTRUMPIC_FILTER )
+if ( CONFIG_SHOWSPECTRUMPIC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showspectrum.c
+		avf_showspectrum.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWVOLUME_FILTER )
+if ( CONFIG_SHOWVOLUME_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showvolume.c
+		avf_showvolume.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWWAVES_FILTER )
+if ( CONFIG_SHOWWAVES_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showwaves.c
+		avf_showwaves.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SHOWWAVESPIC_FILTER )
+if ( CONFIG_SHOWWAVESPIC_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}avf_showwaves.c
+		avf_showwaves.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_SPECTRUMSYNTH_FILTER )
+if ( CONFIG_SPECTRUMSYNTH_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}vaf_spectrumsynth.c
+		vaf_spectrumsynth.c
 	)
 endif()
 
 
 # multimedia sources
-if ( FFMPEG_CONFIG_AVSYNCTEST_FILTER )
+if ( CONFIG_AVSYNCTEST_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}src_avsynctest.c
+		src_avsynctest.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_AMOVIE_FILTER )
+if ( CONFIG_AMOVIE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}src_movie.c
+		src_movie.c
 	)
 endif()
 
-if ( FFMPEG_CONFIG_MOVIE_FILTER )
+if ( CONFIG_MOVIE_FILTER )
 	list(APPEND device_srcs
-		${AV_DIR}src_movie.c
+		src_movie.c
 	)
 endif()
+
 
 list(REMOVE_DUPLICATES device_srcs)
 
-target_include_directories(libavfilter PRIVATE ${FFMPEG_CONFIG_HEADER_DIR})
+target_include_directories(libavfilter 
+	PRIVATE 
+	${FFMPEG_INCLUDE_HEADER_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/../avutil/
+)
+
+target_link_directories(libavfilter
+	PRIVATE 
+	${FFMPEG_INCLUDE_HEADER_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/../avutil/
+)
 
 IF( device_srcs )
   add_library(libavfilter_aux OBJECT ${device_srcs})
 	target_include_directories(libavfilter_aux PRIVATE ${AV_DIR})
   target_include_directories(libavfilter_aux AFTER PRIVATE ${FFMPEG_CONFIG_HEADER_DIR})
+
+	target_compile_options(libavfilter_aux PUBLIC -DHAVE_AV_CONFIG_H=1)
+	target_compile_options(libavfilter_aux INTERFACE ${LIBAVFILTER_C_FLAGS})
+
+	target_include_directories(libavfilter_aux 
+		INTERFACE ${FFMPEG_INCLUDE_HEADER_DIR}
+		PRIVATE ${FFMPEG_INCLUDE_HEADER_DIR}libavutil
+	)
+	
+	target_link_directories(libavfilter_aux 
+		INTERFACE ${FFMPEG_INCLUDE_HEADER_DIR}
+		PRIVATE ${FFMPEG_INCLUDE_HEADER_DIR}libavutil
+	)
 
 	if (FFMPEG_CONFIG_DNN )
 		target_include_directories(libavfilter_aux AFTER PRIVATE ${DNN_DIR})
@@ -3508,5 +3547,6 @@ IF( device_srcs )
 
   target_link_libraries(libavfilter libavfilter_aux)
 ENDIF()
+
 
 list(APPEND EXTRA_LIBS libavfilter)

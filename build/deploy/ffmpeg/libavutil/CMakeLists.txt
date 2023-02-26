@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-message(VAR(libavutil-dir) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
+message(VAR(libavutil) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
 
 set(COMPAT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../compat/)
 
@@ -94,7 +94,7 @@ add_library(libavutil STATIC
 
 set_property(TARGET libavutil PROPERTY C_STANDARD 11)
 
-message(VAR(libavutil-dir).FFMPEG_DIR : ${FFMPEG_INCLUDE_HEADER_DIR})
+# message(VAR(libavutil-dir).FFMPEG_DIR : ${FFMPEG_INCLUDE_HEADER_DIR})
 
 target_compile_options(libavutil 
   INTERFACE "-Wno-implicit-function-declaration;-Wno-implicit-const-int-float-conversion;"
