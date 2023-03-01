@@ -20,3 +20,9 @@ libavutil
 
 x265
 - dynamic hdr
+
+libvpx
+    [CREATE] vpx_scale_rtcd.h
+    [CREATE] vpx_dsp_rtcd.h
+    [CREATE] vp8_rtcd.h
+    [CREATE] vp9_rtcd.h

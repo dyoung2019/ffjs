@@ -59,3 +59,4 @@ CopyOfCMakeCache.txt
 config.log
 build/build/*
 build/include/*
+build_dev.sh

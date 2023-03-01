@@ -18,6 +18,7 @@
 [submodule "build/libvpx"]
 	path = build/libvpx
 	url = https://chromium.googlesource.com/webm/libvpx
+	ignore = dirty
 [submodule "build/lame"]
 	path = build/lame
 	url = https://github.com/ffmpegwasm/lame
