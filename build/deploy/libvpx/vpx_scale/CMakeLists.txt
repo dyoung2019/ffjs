@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+message(VAR(vpx_scale) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
+
 add_library(vpx_scale OBJECT 
   generic/yv12config.c
   generic/yv12config.c
@@ -34,5 +37,3 @@ IF( extra_srcs )
 
   target_link_libraries(vpx_scale vpx_scale_aux1)
 ENDIF()
-
-LIST(APPEND VPX_MODULES vpx_scale)

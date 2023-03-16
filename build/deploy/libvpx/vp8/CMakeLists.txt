@@ -141,8 +141,6 @@ if (CONFIG_VP8)
 
   target_include_directories(vp8_common 
     PUBLIC ${LIBVPX_ROOT_DIR})
-
-  LIST(APPEND VPX_MODULES vp8_common)
 endif()
 
 if(CONFIG_VP8_ENCODER) 
@@ -292,8 +290,38 @@ if(CONFIG_VP8_ENCODER)
   target_include_directories(vp8_encoder 
     PUBLIC ${LIBVPX_ROOT_DIR})
 
-  LIST(APPEND VPX_MODULES vp8_encoder)
 endif()
-# if (CONFIG_VP8_DECODER) 
-#   deploy_vpx_module(vp8dx)
-# endif()
+
+if (CONFIG_VP8_DECODER) 
+
+  set(vp8_dec)
+
+  list(APPEND vp8_dec
+    vp8_dx_iface.c
+    decoder/dboolhuff.c
+    decoder/decodemv.c
+    decoder/decodeframe.c
+    decoder/detokenize.c
+    decoder/onyxd_if.c
+  )
+
+  if (CONFIG_ERROR_CONCEALMENT) 
+    list(APPEND vp8_dec
+      decoder/error_concealment.c
+    )
+  endif()
+
+  if (CONFIG_MULTITHREAD) 
+    list(APPEND vp8_dec
+      decoder/threading.c
+    )
+  endif()
+
+  list(REMOVE_DUPLICATES vp8_dec)
+
+  add_library(vp8_decoder OBJECT ${vp8_dec})
+      
+  target_include_directories(vp8_decoder 
+    PUBLIC ${LIBVPX_ROOT_DIR})
+
+endif()

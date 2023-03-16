@@ -11,7 +11,7 @@ option(USE_FFMPEG "Using ffmpeg" ON)
 if(USE_FFMPEG)
   set(FFMPEG_BUILD_DIR "./build")
   add_subdirectory(${FFMPEG_BUILD_DIR})
-  list(APPEND EXTRA_LIBS zlib x264 x265 libavutil libavdevice libavfilter)
+  list(APPEND EXTRA_LIBS zlib x264 x265 libvpx libavutil libavdevice libavfilter)
 endif()
 
 if(USE_PROBE_X)

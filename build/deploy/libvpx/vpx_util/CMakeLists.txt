@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+message(VAR(vpx_util) .MAXIMUM_MEMORY : ${MAXIMUM_MEMORY})
+
 add_library(vpx_util OBJECT 
   vpx_thread.c
   vpx_write_yuv_frame.c
@@ -17,5 +20,3 @@ IF( CONFIG_BITSTREAM_DEBUG OR CONFIG_MISMATCH_DEBUG)
 
   target_link_libraries(vpx_util vpx_util_aux0)
 ENDIF()
-
-LIST(APPEND VPX_MODULES vpx_util)
