@@ -32,7 +32,7 @@ add_library(libvpx STATIC
   $<TARGET_OBJECTS:vpx_scale>
 )
 
-if (vpx_ports)
+if ($<TARGET_OBJECTS:vpx_ports>)
   message(vpx_ports is compiled)
   target_link_libraries(libvpx PUBLIC vpx_ports $<TARGET_OBJECTS:vpx_ports>)
 endif()

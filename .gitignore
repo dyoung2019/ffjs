@@ -46,6 +46,7 @@ autom4te.cache/
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
+*/CMakeFiles/**.dir
 CMakeScripts
 Testing
 #Makefile
